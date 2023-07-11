@@ -12,10 +12,6 @@
 #define _mmem_lock()       do { mmem__do_lock(MMEM_LOCK); } while(0)
 #define _mmem_unlock()     do { mmem__do_lock(MMEM_UNLOCK); } while(0)
 
-#ifdef _align
-#undef _align
-#endif
-
 #define _align(_size, _align) (((_size) + ((_align) - 1)) & (~((_align) - 1)))
 
 #define _mmem_align(_size) _align(_size, sizeof(long))
