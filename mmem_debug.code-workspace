@@ -13,6 +13,14 @@
             "**/.DS_Store": true,
             "**/Thumbs.db": true,
             "build/": true
+        },
+        "files.associations": {
+            "chrono": "c",
+            "array": "c",
+            "string_view": "c",
+            "initializer_list": "c",
+            "utility": "c",
+            "random": "c"
         }
     }
 }

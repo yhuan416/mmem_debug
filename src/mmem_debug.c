@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-// #define __mmem_debug_enbale 1
+#define __mmem_debug_enbale 1
 
 #if defined(__mmem_debug_enbale) && (__mmem_debug_enbale == 1)
+
+#include "mlist.h"
 
 #include "mmem_debug_adapter.h"
 #define _mmem_lock()       mmem__do_lock(MMEM_LOCK)
@@ -18,24 +20,19 @@
 
 #define _mmem_align(_size) _align(_size, sizeof(long))
 
-
 typedef struct mmem_block {
     unsigned long magic;
-    struct mmem_block *next;
-    struct mmem_block *prev;
+    MLIST list;
     unsigned long size;
     const char *file;
     unsigned long line;
     char data[0];
 } mmem_block_t;
 
-
 #define MMEM_BLOCK_SIZE _mmem_align(sizeof(mmem_block_t))
 #define _mmem_total_size(_size) (unsigned long)(MMEM_BLOCK_SIZE + (_size) + sizeof(long))
 
-
 #define _mmem_get_block(_addr) ((mmem_block_t *)((char *)(_addr) - MMEM_BLOCK_SIZE))
-
 
 #define _mmem_block_magic(_block)        ((_block)->magic)
 #define _mmem_block_size(_block)         ((_block)->size)
@@ -44,12 +41,10 @@ typedef struct mmem_block {
 #define _mmem_block_data(_block)         (void *)(&((_block)->data))
 #define _mmem_block_tail_magic(_block)   (*((long *)((char *)((_block)->data) + (_block)->size)))
 
-
 #define _mmem_block_update(_block, _size, _file, _line) \
     _mmem_block_size(_block) = (_size); \
     _mmem_block_file(_block) = (_file); \
     _mmem_block_line(_block) = (_line);
-
 
 #define MMEM_BLOCK_ACTIVE_HEAD_MAGIC    (*((long *)"mbah    "))
 #define MMEM_BLOCK_ACTIVE_TAIL_MAGIC    (*((long *)"mbat    "))
@@ -88,14 +83,84 @@ static inline long _mmem_set_block_magic_free(mmem_block_t *block)
     return 0;
 }
 
+typedef struct mmem_block_table {
+    unsigned long count;
+    MLIST list;
+    unsigned long total_size;
+    unsigned long active_size;
+} mmem_block_table_t;
+
+static mmem_block_table_t mmem_block_table = {0};
+
+static mmem_block_table_t *_mmem_block_table_get(void)
+{
+    static mmem_block_table_t *table = NULL;
+
+    if (table == NULL) {
+        table = &mmem_block_table;
+
+        table->total_size = 0;
+        table->active_size = 0;
+
+        // init list head
+        MLIST_INIT(&(table->list));
+    }
+
+    return table;
+}
+
+#define _mmem_block_add(_table, _block, _total_size) \
+    do { \
+        MLIST_ADD_TAIL(&((_table)->list), &((_block)->list)); \
+        (_table)->count++; \
+        (_table)->total_size += (_total_size); \
+        (_table)->active_size += (_block)->size; \
+    } while(0);
+
+#define _mmem_block_del(_table, _block, _total_size) \
+    do { \
+        MLIST_DEL(&((_block)->list)); \
+        (_table)->count--; \
+        (_table)->total_size -= (_total_size); \
+        (_table)->active_size -= (_block)->size; \
+    } while(0);
+
+// static long _mmem_block_add(mmem_block_t *block)
+// {
+//     mmem_block_table_t *table = _mmem_block_table_get();
+//     if (block == NULL) {
+//         return -1;
+//     }
+
+//     MLIST_ADD_TAIL(&(table->list), &(block->list));
+
+//     table->count++;
+
+//     return 0;
+// }
+
+// static long _mmem_block_del(mmem_block_t *block)
+// {
+//     mmem_block_table_t *table = _mmem_block_table_get();
+//     if (block == NULL) {
+//         return -1;
+//     }
+
+//     MLIST_DEL(&(block->list));
+
+//     table->count--;
+
+//     return 0;
+// }
 
 void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* file, int line)
 {
     mmem_block_t *block = NULL;
+    mmem_block_table_t *table = _mmem_block_table_get();
     unsigned long size = counts * item_size;
     unsigned long total_size;
 
-    printf("mmem_calloc: %s:%d\n", file, line);
+    // printf("mmem_calloc: %s:%d\n", file, line);
 
     if (counts == 0 || item_size == 0) {
         return NULL;
@@ -113,6 +178,11 @@ void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* fil
 
     _mmem_set_block_magic_active(block);
 
+    MLIST_INIT(&(block->list));
+
+    // add to block table
+    _mmem_block_add(table, block, total_size);
+
     _mmem_unlock();
 
     return _mmem_block_data(block);
@@ -122,9 +192,10 @@ void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* fil
 void *mmem_alloc(unsigned long size, const char* file, int line)
 {
     mmem_block_t *block = NULL;
+    mmem_block_table_t *table = _mmem_block_table_get();
     unsigned long total_size;
 
-    printf("mmem_alloc: %s:%d\n", file, line);
+    // printf("mmem_alloc: %s:%d\n", file, line);
 
     total_size = _mmem_total_size(size);
     block = (mmem_block_t *)_real_malloc(total_size);
@@ -138,6 +209,11 @@ void *mmem_alloc(unsigned long size, const char* file, int line)
 
     _mmem_set_block_magic_active(block);
 
+    MLIST_INIT(&(block->list));
+
+    // add to block table
+    _mmem_block_add(table, block, total_size);
+
     _mmem_unlock();
 
     return _mmem_block_data(block);
@@ -147,8 +223,9 @@ void *mmem_alloc(unsigned long size, const char* file, int line)
 void mmem_free(void* addr, const char* file, int line)
 {
     mmem_block_t *block = NULL;
+    mmem_block_table_t *table = _mmem_block_table_get();
 
-    printf("mmem_free: %p:%s:%d\n", addr, file, line);
+    // printf("mmem_free: %p:%s:%d\n", addr, file, line);
 
     if (addr == NULL) {
         return;
@@ -164,7 +241,11 @@ void mmem_free(void* addr, const char* file, int line)
         return;
     }
 
+    // set block magic
     _mmem_set_block_magic_free(block);
+
+    // delete old block
+    _mmem_block_del(table, block, _mmem_total_size(block->size));
 
     _mmem_unlock();
 
@@ -176,9 +257,10 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
 {
     mmem_block_t *block = NULL;
     mmem_block_t *new_block = NULL;
+    mmem_block_table_t *table = _mmem_block_table_get();
     unsigned long total_size;
 
-    printf("mmem_realloc: %p:%lu:%s:%d\n", addr, size, file, line);
+    // printf("mmem_realloc: %p:%lu:%s:%d\n", addr, size, file, line);
 
     if( addr == NULL ) {
         return mmem_alloc( size, file, line );
@@ -199,9 +281,11 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
         return NULL;
     }
 
-    // delete old block
+    // set old block magic
     _mmem_set_block_magic_free(block);
 
+    // delete old block
+    _mmem_block_del(table, block, _mmem_total_size(block->size));
 
     // alloc new block
     total_size = _mmem_total_size(size);
@@ -217,11 +301,64 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
     // update new block
     _mmem_block_update(block, size, file, line);
 
+    // set new block magic
     _mmem_set_block_magic_active(block);
+
+    MLIST_INIT(&(block->list));
+
+    // add to block table
+    _mmem_block_add(table, block, total_size);
 
     _mmem_unlock();
 
     return _mmem_block_data(block);
+}
+
+static inline long _mmem_block_dump(mmem_block_t *block, char *buf, unsigned long buf_size)
+{
+    if (block == NULL) {
+        return 0;
+    }
+
+    return snprintf(buf, buf_size, "%ld\t%s:%ld\n",
+                block->size, block->file, block->line);
+}
+
+long mmem_dump(const int argc, const char **argv, unsigned long counts, char *buf, unsigned long buf_size)
+{
+    long offset = 0;
+    long count = 0;
+    mmem_block_t *block = NULL;
+    mmem_block_table_t *table = _mmem_block_table_get();
+    
+    if (table == NULL) {
+        return -1;
+    }
+
+    _mmem_lock();
+
+    count = table->count;
+
+    if (buf != NULL && buf_size > 0) {
+
+        offset += snprintf(buf, buf_size, "========= mmem_dump start =========\n");
+        offset += snprintf(buf + offset, buf_size - offset, "counts: %lu, total_size: %lu, active_size: %lu\n", 
+                    count, table->total_size, table->active_size);
+        offset += snprintf(buf + offset, buf_size - offset, "-----------------------------------\n");
+        offset += snprintf(buf + offset, buf_size - offset, "size\tfile\n");
+        offset += snprintf(buf + offset, buf_size - offset, "-----------------------------------\n");
+
+        // 遍历所有的block
+        MLIST_FOR_EACH_ENTRY(block, mmem_block_t, &(table->list), list) {
+            offset += _mmem_block_dump(block, buf + offset, buf_size - offset);
+        }
+
+        offset += snprintf(buf + offset, buf_size - offset, "\n=========  mmem_dump end  =========\n");
+    }
+
+    _mmem_unlock();
+
+    return count;
 }
 
 #endif/* defined(__mmem_debug_enbale) && (__mmem_debug_enbale == 1) */
