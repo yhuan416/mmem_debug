@@ -89,7 +89,7 @@ void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* fil
     }
 
     total_size = _mmem_total_size(size);
-    block = (mmem_block_t *)calloc(1, total_size);
+    block = (mmem_block_t *)_real_calloc(1, total_size);
     if (block == NULL) {
         return NULL;
     }
@@ -115,7 +115,7 @@ void *mmem_alloc(unsigned long size, const char* file, int line)
     printf("mmem_alloc: %s:%d\n", file, line);
 
     total_size = _mmem_total_size(size);
-    block = (mmem_block_t *)malloc(total_size);
+    block = (mmem_block_t *)_real_malloc(total_size);
     if (block == NULL) {
         return NULL;
     }
@@ -157,7 +157,7 @@ void mmem_free(void* addr, const char* file, int line)
 
     _mmem_unlock();
 
-    free(block);
+    _real_free(block);
 }
 
 void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
@@ -186,7 +186,7 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
 
     // alloc new block
     total_size = _mmem_total_size(size);
-    new_block = (mmem_block_t *)realloc(block, total_size);
+    new_block = (mmem_block_t *)_real_realloc(block, total_size);
     if (new_block == NULL) {
         _mmem_unlock();
         return NULL;
