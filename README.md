@@ -53,6 +53,7 @@ extern void mmem_free(void *addr, const char *file, int line);
  * @return (void *)
 */
 extern void *mmem_realloc(void *addr, unsigned long size, const char *file, int line);
+
 ```
 
 ## 3. dump内存信息
@@ -76,5 +77,29 @@ extern long mmem_dump(const int argc, const char **argv, unsigned long counts, c
 char dump_buf[1024] = {0};
 mmem_dump(0, NULL, 100, dump_buf, 1024);
 printf("%s\n", dump_buf);
+
+...
+
+```
+
+``` txt
+
+// output
+========= mmem_dump start =========
+counts: 0, total_size: 0, active_size: 0
+-----------------------------------
+size    file
+-----------------------------------
+1024    /home/yhuan/workspace/mmem_debug/test/main.c:12
+
+=========  mmem_dump end  =========
+
+
+counts          : 当前申请了多少个内存块
+total_size      : 当前申请的内存总大小(包含了内存管理结构体的大小)
+active_size     : 当前申请的内存总大小(不包含内存管理结构体的大小)
+
+size            : 当前内存块的大小
+file            : 当前内存块的申请位置
 
 ```
