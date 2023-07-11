@@ -3,7 +3,7 @@
 
 #include "pthread.h"
 
-#include "mmem.h"
+#include "mmem_debug_adapter.h"
 
 long mmem__do_lock(unsigned long release)
 {

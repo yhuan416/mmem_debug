@@ -4,7 +4,7 @@
 
 #if defined(__mmem_debug_enbale) && (__mmem_debug_enbale == 1)
 
-#include "mmem.h"
+#include "mmem_debug_adapter.h"
 #define _mmem_lock()       mmem__do_lock(MMEM_LOCK)
 #define _mmem_unlock()     mmem__do_lock(MMEM_UNLOCK)
 
