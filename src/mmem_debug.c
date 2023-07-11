@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+// #define __mmem_debug_enbale 1
+
 #if defined(__mmem_debug_enbale) && (__mmem_debug_enbale == 1)
 
 #include "mmem_debug_adapter.h"
@@ -16,6 +18,7 @@
 
 #define _mmem_align(_size) _align(_size, sizeof(long))
 
+
 typedef struct mmem_block {
     unsigned long magic;
     struct mmem_block *next;
@@ -26,9 +29,13 @@ typedef struct mmem_block {
     char data[0];
 } mmem_block_t;
 
+
 #define MMEM_BLOCK_SIZE _mmem_align(sizeof(mmem_block_t))
+#define _mmem_total_size(_size) (unsigned long)(MMEM_BLOCK_SIZE + (_size) + sizeof(long))
+
 
 #define _mmem_get_block(_addr) ((mmem_block_t *)((char *)(_addr) - MMEM_BLOCK_SIZE))
+
 
 #define _mmem_block_magic(_block)        ((_block)->magic)
 #define _mmem_block_size(_block)         ((_block)->size)
@@ -37,7 +44,12 @@ typedef struct mmem_block {
 #define _mmem_block_data(_block)         (void *)(&((_block)->data))
 #define _mmem_block_tail_magic(_block)   (*((long *)((char *)((_block)->data) + (_block)->size)))
 
-#define _mmem_total_size(_size) (unsigned long)(MMEM_BLOCK_SIZE + (_size) + sizeof(long))
+
+#define _mmem_block_update(_block, _size, _file, _line) \
+    _mmem_block_size(_block) = (_size); \
+    _mmem_block_file(_block) = (_file); \
+    _mmem_block_line(_block) = (_line);
+
 
 #define MMEM_BLOCK_ACTIVE_HEAD_MAGIC    (*((long *)"mbah    "))
 #define MMEM_BLOCK_ACTIVE_TAIL_MAGIC    (*((long *)"mbat    "))
@@ -76,6 +88,7 @@ static inline long _mmem_set_block_magic_free(mmem_block_t *block)
     return 0;
 }
 
+
 void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* file, int line)
 {
     mmem_block_t *block = NULL;
@@ -96,9 +109,7 @@ void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* fil
 
     _mmem_lock();
 
-    _mmem_block_size(block) = size;
-    _mmem_block_file(block) = file;
-    _mmem_block_line(block) = line;
+    _mmem_block_update(block, size, file, line);
 
     _mmem_set_block_magic_active(block);
 
@@ -106,6 +117,7 @@ void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* fil
 
     return _mmem_block_data(block);
 }
+
 
 void *mmem_alloc(unsigned long size, const char* file, int line)
 {
@@ -122,9 +134,7 @@ void *mmem_alloc(unsigned long size, const char* file, int line)
 
     _mmem_lock();
 
-    _mmem_block_size(block) = size;
-    _mmem_block_file(block) = file;
-    _mmem_block_line(block) = line;
+    _mmem_block_update(block, size, file, line);
 
     _mmem_set_block_magic_active(block);
 
@@ -132,6 +142,7 @@ void *mmem_alloc(unsigned long size, const char* file, int line)
 
     return _mmem_block_data(block);
 }
+
 
 void mmem_free(void* addr, const char* file, int line)
 {
@@ -159,6 +170,7 @@ void mmem_free(void* addr, const char* file, int line)
 
     _real_free(block);
 }
+
 
 void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
 {
@@ -195,9 +207,7 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
     block = new_block;
 
     // update new block
-    _mmem_block_size(block) = size;
-    _mmem_block_file(block) = file;
-    _mmem_block_line(block) = line;
+    _mmem_block_update(block, size, file, line);
 
     _mmem_set_block_magic_active(block);
 
