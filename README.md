@@ -86,7 +86,7 @@ printf("%s\n", dump_buf);
 
 // output
 ========= mmem_dump start =========
-counts: 0, total_size: 0, active_size: 0
+counts: 1, total: 1088, active: 1024
 -----------------------------------
 size    file
 -----------------------------------
@@ -96,8 +96,8 @@ size    file
 
 
 counts          : 当前申请了多少个内存块
-total_size      : 当前申请的内存总大小(包含了内存管理结构体的大小)
-active_size     : 当前申请的内存总大小(不包含内存管理结构体的大小)
+total           : 当前申请的内存总大小(包含了内存管理结构体的大小)
+active          : 当前申请的内存总大小(不包含内存管理结构体的大小)
 
 size            : 当前内存块的大小
 file            : 当前内存块的申请位置
