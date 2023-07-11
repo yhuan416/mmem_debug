@@ -7,7 +7,7 @@ int main(int argc, char const *argv[])
 {
     printf("Hello world!\n");
 
-    char *buf = (char *)malloc(1024);
+    char *buf = (char *)malloc(10);
     if (buf == NULL) {
         printf("malloc failed!\n");
         return -1;
