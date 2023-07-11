@@ -178,8 +178,15 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
     mmem_block_t *new_block = NULL;
     unsigned long total_size;
 
+    printf("mmem_realloc: %p:%lu:%s:%d\n", addr, size, file, line);
+
     if( addr == NULL ) {
         return mmem_alloc( size, file, line );
+    }
+
+    if (size == 0) {
+        mmem_free(addr, file, line);
+        return NULL;
     }
 
     _mmem_lock();
@@ -200,6 +207,7 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
     total_size = _mmem_total_size(size);
     new_block = (mmem_block_t *)_real_realloc(block, total_size);
     if (new_block == NULL) {
+        printf("mmem_realloc: realloc failed!\n");
         _mmem_unlock();
         return NULL;
     }
