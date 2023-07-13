@@ -4,7 +4,7 @@
 
 // #define __mmem_debug_enbale 1
 
-#if defined(__mmem_debug_enbale) && (__mmem_debug_enbale == 1)
+// #if defined(__mmem_debug_enbale) && (__mmem_debug_enbale == 1)
 
 #include "mlist.h"
 
@@ -318,4 +318,4 @@ long mmem_dump(const int argc, const char **argv, unsigned long counts, char *bu
     return count;
 }
 
-#endif/* defined(__mmem_debug_enbale) && (__mmem_debug_enbale == 1) */
+// #endif/* defined(__mmem_debug_enbale) && (__mmem_debug_enbale == 1) */

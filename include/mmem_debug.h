@@ -8,7 +8,6 @@ extern "C" {
 #endif/* defined(__cplusplus) */
 
 #if defined(__mmem_debug_enbale) && (__mmem_debug_enbale == 1)
-
 #   undef calloc
 #   define calloc(_counts, _item_size)  mmem_calloc(_counts, _item_size, __FILE__, __LINE__)
 #   undef malloc
@@ -17,6 +16,7 @@ extern "C" {
 #   define free(_addr)                  mmem_free(_addr, __FILE__, __LINE__)
 #   undef realloc
 #   define realloc(_addr, _size)        mmem_realloc(_addr, _size, __FILE__, __LINE__)
+#endif/* defined(__mmem_debug_enbale) && (__mmem_debug_enbale == 1) */
 
 /**
  * @brief mmem_calloc       calloc
@@ -66,8 +66,6 @@ extern void *mmem_realloc(void *addr, unsigned long size, const char *file, int 
  * @return (long)           dump data size
 */
 extern long mmem_dump(const int argc, const char **argv, unsigned long counts, char *buf, unsigned long buf_size);
-
-#endif/* defined(__mmem_debug_enbale) && (__mmem_debug_enbale == 1) */
 
 #if defined(__cplusplus)
 }
