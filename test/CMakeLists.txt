@@ -7,6 +7,7 @@ set(tests
     tests/calloc_test.c
     tests/realloc_test.c
     tests/free_test.c
+    tests/dump_test.c
     tests/free_all_test.c
 )
 

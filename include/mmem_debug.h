@@ -57,24 +57,10 @@ extern void mmem_free(void *addr, const char *file, int line);
 extern void *mmem_realloc(void *addr, unsigned long size, const char *file, int line);
 
 /**
- * @brief mmem_dump         dump memory
- * @param argc[in]          argument counts
- * @param argv[in]          argument values
- * @param counts[in]        item counts
- * @param buf[out]          buffer to store dump data
- * @param buf_size[in]      buffer size
- * @return (long)           dump data size
-*/
-extern long mmem_dump(const int argc, const char **argv, unsigned long counts, char *buf, unsigned long buf_size);
-
-/**
  * @brief mmem_free_all     free all memory
  * @return void
 */
 extern void mmem_free_all(void);
-
-// 临时 测试用
-extern unsigned long mmem_get_counts(void);
 
 #if defined(__cplusplus)
 }

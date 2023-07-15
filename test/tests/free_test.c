@@ -17,6 +17,8 @@ void free_test2(void)
 
 void free_test_add_test(void)
 {
-    CU_add_test(g_suite, free_test1_description, free_test1);
-    CU_add_test(g_suite, free_test2_description, free_test2);
+    CU_pSuite free_suite = CU_add_suite("free test", NULL, NULL);
+
+    CU_add_test(free_suite, free_test1_description, free_test1);
+    CU_add_test(free_suite, free_test2_description, free_test2);
 }

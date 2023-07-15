@@ -4,6 +4,8 @@
 
 #include "mlist.h"
 
+#include "mmem_dump.h"
+
 #include "mmem_debug_adapter.h"
 #define _mmem_lock()       do { mmem__do_lock(MMEM_LOCK); } while(0)
 #define _mmem_unlock()     do { mmem__do_lock(MMEM_UNLOCK); } while(0)
@@ -294,42 +296,74 @@ static inline long _mmem_block_dump(mmem_block_t *block, char *buf, unsigned lon
                 block->size, block->file, block->line);
 }
 
-long mmem_dump(const int argc, const char **argv, unsigned long counts, char *buf, unsigned long buf_size)
+static long _mmem_dump_cmd_counts(mmem_block_table_t *table, char *buf, unsigned long buf_size)
 {
-    long offset = 0;
-    long count = 0;
-    mmem_block_t *block = NULL;
-    mmem_block_table_t *table = NULL;
+    long ret = MMEM_DUMP_RET_OK;
 
-    if (table == NULL) {
-        return -1;
+    if (buf == NULL) {
+        return MMEM_DUMP_RET_EMPTY_BUF;
     }
+
+    if (buf_size < sizeof(table->count)) {
+        return MMEM_DUMP_RET_BUF_SIZE_TOO_SMALL;
+    }
+
+    *((unsigned long *)buf) = table->count;
+
+    return ret;
+}
+
+static long _mmem_dump_cmd_mmem_info(mmem_block_table_t *table, char *buf, unsigned long buf_size)
+{
+    long ret = MMEM_DUMP_RET_OK;
+
+    if (buf == NULL) {
+        return MMEM_DUMP_RET_EMPTY_BUF;
+    }
+
+    if (buf_size < sizeof(mmem_info_t)) {
+        return MMEM_DUMP_RET_BUF_SIZE_TOO_SMALL;
+    }
+
+    mmem_info_t *info = (mmem_info_t *)buf;
+
+    info->counts = table->count;
+    info->total_size = table->total_size;
+    info->active_size = table->active_size;
+    info->max_total_size = table->max_total_size;
+    info->max_active_size = table->max_active_size;
+
+    return ret;
+}
+
+long mmem_dump(unsigned long cmd, void *buf, unsigned long buf_size)
+{
+    long ret = 0;
+    mmem_block_table_t *table = NULL;
 
     _mmem_lock();
 
     table = _mmem_block_table_get();
 
-    count = table->count;
+    switch (cmd)
+    {
+    case MMEM_DUMP_CMD_COUNTS:
+        ret = _mmem_dump_cmd_counts(table, buf, buf_size);
+        break;
 
-    if (buf != NULL && buf_size > 0) {
+    case MMEM_DUMP_CMD_MMEM_INFO:
+        ret = _mmem_dump_cmd_mmem_info(table, buf, buf_size);
+        break;
 
-        offset += snprintf(buf, buf_size, "========= mmem_dump start =========\n");
-        offset += snprintf(buf + offset, buf_size - offset, "counts: %lu, total: %lu, active: %lu, max_total: %lu, max_active: %lu\n", 
-                    count, table->total_size, table->active_size, table->max_total_size, table->max_active_size);
-        offset += snprintf(buf + offset, buf_size - offset, "-----------------------------------\n");
-        offset += snprintf(buf + offset, buf_size - offset, "size\tfile\n");
-        offset += snprintf(buf + offset, buf_size - offset, "-----------------------------------\n");
-
-        MLIST_FOR_EACH_ENTRY(block, mmem_block_t, &(table->list), list) {
-            offset += _mmem_block_dump(block, buf + offset, buf_size - offset);
-        }
-
-        offset += snprintf(buf + offset, buf_size - offset, "\n=========  mmem_dump end  =========\n");
+    default:
+        // printf("mmem_dump: invalid cmd %ld\n", cmd);
+        ret = MMEM_DUMP_RET_INVALID_CMD;
+        break;
     }
 
     _mmem_unlock();
 
-    return count;
+    return ret;
 }
 
 void mmem_free_all(void)
@@ -359,19 +393,4 @@ void mmem_free_all(void)
     }
 
     _mmem_unlock();
-}
-
-unsigned long mmem_get_counts(void)
-{
-    unsigned long count = 0;
-    mmem_block_table_t *table = NULL;
-
-    _mmem_lock();
-
-    table = _mmem_block_table_get();
-    count = table->count;
-
-    _mmem_unlock();
-
-    return count;
 }
