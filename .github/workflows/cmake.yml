@@ -2,7 +2,8 @@ name: CMake
 
 on:
   push:
-    branches: [ "main" ]
+    # all branches are built
+    branches: [ "*" ]
   pull_request:
     branches: [ "main" ]
 
