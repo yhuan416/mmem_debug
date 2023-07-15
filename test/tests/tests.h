@@ -16,4 +16,6 @@ void free_test_add_test(void);
 
 void realloc_test_add_test(void);
 
+void free_all_test_add_test(void);
+
 #endif // !_TEST_H_

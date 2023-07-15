@@ -331,3 +331,47 @@ long mmem_dump(const int argc, const char **argv, unsigned long counts, char *bu
 
     return count;
 }
+
+void mmem_free_all(void)
+{
+    mmem_block_t *block = NULL, *n;
+    mmem_block_table_t *table = NULL;
+
+    _mmem_lock();
+
+    table = _mmem_block_table_get();
+
+    MLIST_FOR_EACH_ENTRY_SAFE(block, n, mmem_block_t, &(table->list), list) {
+
+        // check block magic
+        if (_mmem_check_block_magic_active(block)) {
+            printf("mmem_free_all: block %p magic error!\n", block);
+        }
+
+        // set block magic
+        _mmem_set_block_magic_free(block);
+
+        // delete old block
+        _mmem_block_del(table, block);
+
+        // free block
+        _real_free(block);
+    }
+
+    _mmem_unlock();
+}
+
+unsigned long mmem_get_counts(void)
+{
+    unsigned long count = 0;
+    mmem_block_table_t *table = NULL;
+
+    _mmem_lock();
+
+    table = _mmem_block_table_get();
+    count = table->count;
+
+    _mmem_unlock();
+
+    return count;
+}

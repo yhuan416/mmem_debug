@@ -8,6 +8,7 @@ static void mmem_debug_add_test(void)
     calloc_test_add_test();
     realloc_test_add_test();
     free_test_add_test();
+    free_all_test_add_test();
 }
 
 int main() {

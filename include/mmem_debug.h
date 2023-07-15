@@ -67,6 +67,15 @@ extern void *mmem_realloc(void *addr, unsigned long size, const char *file, int 
 */
 extern long mmem_dump(const int argc, const char **argv, unsigned long counts, char *buf, unsigned long buf_size);
 
+/**
+ * @brief mmem_free_all     free all memory
+ * @return void
+*/
+extern void mmem_free_all(void);
+
+// 临时 测试用
+extern unsigned long mmem_get_counts(void);
+
 #if defined(__cplusplus)
 }
 #endif/* defined(__cplusplus) */
