@@ -114,7 +114,7 @@ static mmem_block_table_t *_mmem_block_table_get(void)
 void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* file, int line)
 {
     mmem_block_t *block = NULL;
-    mmem_block_table_t *table = _mmem_block_table_get();
+    mmem_block_table_t *table = NULL;
     unsigned long size = counts * item_size;
     unsigned long total_size;
 
@@ -129,6 +129,8 @@ void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* fil
     }
 
     _mmem_lock();
+
+    table = _mmem_block_table_get();
 
     _mmem_block_update(block, size, total_size, file, line);
 
@@ -148,7 +150,7 @@ void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* fil
 void *mmem_alloc(unsigned long size, const char* file, int line)
 {
     mmem_block_t *block = NULL;
-    mmem_block_table_t *table = _mmem_block_table_get();
+    mmem_block_table_t *table = NULL;
     unsigned long total_size;
 
     if (size == 0) {
@@ -162,6 +164,8 @@ void *mmem_alloc(unsigned long size, const char* file, int line)
     }
 
     _mmem_lock();
+
+    table = _mmem_block_table_get();
 
     // update block info
     _mmem_block_update(block, size, total_size, file, line);
@@ -183,13 +187,15 @@ void *mmem_alloc(unsigned long size, const char* file, int line)
 void mmem_free(void* addr, const char* file, int line)
 {
     mmem_block_t *block = NULL;
-    mmem_block_table_t *table = _mmem_block_table_get();
+    mmem_block_table_t *table = NULL;
 
     if (addr == NULL) {
         return;
     }
 
     _mmem_lock();
+
+    table = _mmem_block_table_get();
 
     block = _mmem_get_block(addr);
 
@@ -215,7 +221,7 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
 {
     mmem_block_t *block = NULL;
     mmem_block_t *new_block = NULL;
-    mmem_block_table_t *table = _mmem_block_table_get();
+    mmem_block_table_t *table = NULL;
     unsigned long total_size;
 
     // if addr is NULL, realloc is equal to malloc
@@ -230,6 +236,8 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
     }
 
     _mmem_lock();
+
+    table = _mmem_block_table_get();
 
     block = _mmem_get_block(addr);
 
@@ -287,13 +295,15 @@ long mmem_dump(const int argc, const char **argv, unsigned long counts, char *bu
     long offset = 0;
     long count = 0;
     mmem_block_t *block = NULL;
-    mmem_block_table_t *table = _mmem_block_table_get();
+    mmem_block_table_t *table = NULL;
 
     if (table == NULL) {
         return -1;
     }
 
     _mmem_lock();
+
+    table = _mmem_block_table_get();
 
     count = table->count;
 
