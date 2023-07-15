@@ -1,6 +1,16 @@
 cmake_minimum_required(VERSION 3.5)
 
-add_executable(mmem_debug_test main.c)
-target_link_libraries(mmem_debug_test mmem_debug)
+set(MMEM_DEBUG_TEST_NAME mmem_debug_test)
+set(TEST_FILES main.c)
 
-add_test(NAME mmem_debug_test COMMAND mmem_debug_test)
+add_executable(${MMEM_DEBUG_TEST_NAME} ${TEST_FILES})
+
+# mmem_debug
+target_link_libraries(${MMEM_DEBUG_TEST_NAME} mmem_debug)
+
+# CUnit
+target_link_directories(${MMEM_DEBUG_TEST_NAME} PUBLIC CUnit/lib)
+target_link_libraries(${MMEM_DEBUG_TEST_NAME} cunit)
+include_directories(CUnit/include)
+
+add_test(NAME ${MMEM_DEBUG_TEST_NAME} COMMAND ${MMEM_DEBUG_TEST_NAME})
