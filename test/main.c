@@ -1,20 +1,21 @@
-#include <CUnit/Basic.h>
+#include "tests.h"
 
-void test_add(void) {
-    CU_ASSERT_EQUAL(2 + 2, 4);
-}
+CU_pSuite g_suite = NULL;
 
-void test_sub(void) {
-    CU_ASSERT_EQUAL(2 - 2, 0);
+static void mmem_debug_add_test(void)
+{
+    malloc_test_add_test();
+    calloc_test_add_test();
+    realloc_test_add_test();
+    free_test_add_test();
 }
 
 int main() {
     CU_initialize_registry();
-    CU_pSuite suite = CU_add_suite("test_suite", NULL, NULL);
-    
-    CU_add_test(suite, "test_add", test_add);
-    CU_add_test(suite, "test_sub", test_sub);
-    
+    g_suite = CU_add_suite("test_suite", NULL, NULL);
+
+    mmem_debug_add_test();
+
     CU_basic_set_mode(CU_BRM_VERBOSE);
     
     CU_basic_run_tests();
