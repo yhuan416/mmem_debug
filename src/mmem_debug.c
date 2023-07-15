@@ -121,13 +121,14 @@ void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* fil
 {
     mmem_block_t *block = NULL;
     mmem_block_table_t *table = NULL;
-    unsigned long size = counts * item_size;
-    unsigned long total_size;
+    unsigned long size = 0;
+    unsigned long total_size = 0;
 
     if (counts == 0 || item_size == 0) {
         return NULL;
     }
 
+    size = counts * item_size;
     total_size = _mmem_total_size(size);
     block = (mmem_block_t *)_real_calloc(1, total_size);
     if (block == NULL) {
@@ -286,16 +287,71 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
     return _mmem_block_data(block);
 }
 
-static inline long _mmem_block_dump(mmem_block_t *block, char *buf, unsigned long buf_size)
+// mmem_dump
+static long _mmem_dump_cmd_counts(mmem_block_table_t *table, char *buf, unsigned long buf_size);
+static long _mmem_dump_cmd_mmem_info(mmem_block_table_t *table, char *buf, unsigned long buf_size);
+
+long mmem_dump(unsigned long cmd, void *buf, unsigned long buf_size)
 {
-    if (block == NULL) {
-        return 0;
+    long ret = 0;
+    mmem_block_table_t *table = NULL;
+
+    _mmem_lock();
+
+    table = _mmem_block_table_get();
+
+    switch (cmd)
+    {
+    case MMEM_DUMP_CMD_COUNTS:
+        ret = _mmem_dump_cmd_counts(table, buf, buf_size);
+        break;
+
+    case MMEM_DUMP_CMD_MMEM_INFO:
+        ret = _mmem_dump_cmd_mmem_info(table, buf, buf_size);
+        break;
+
+    default:
+        // printf("mmem_dump: invalid cmd %ld\n", cmd);
+        ret = MMEM_DUMP_RET_INVALID_CMD;
+        break;
     }
 
-    return snprintf(buf, buf_size, "%ld\t%s:%ld\n",
-                block->size, block->file, block->line);
+    _mmem_unlock();
+
+    return ret;
 }
 
+// mmem_free_all
+void mmem_free_all(void)
+{
+    mmem_block_t *block = NULL, *n;
+    mmem_block_table_t *table = NULL;
+
+    _mmem_lock();
+
+    table = _mmem_block_table_get();
+
+    MLIST_FOR_EACH_ENTRY_SAFE(block, n, mmem_block_t, &(table->list), list) {
+
+        // check block magic
+        if (_mmem_check_block_magic_active(block)) {
+            printf("mmem_free_all: block %p magic error!\n", block);
+        }
+
+        // set block magic
+        _mmem_set_block_magic_free(block);
+
+        // delete old block
+        _mmem_block_del(table, block);
+
+        // free block
+        _real_free(block);
+    }
+
+    _mmem_unlock();
+}
+
+// mmem_dump cmd
 static long _mmem_dump_cmd_counts(mmem_block_table_t *table, char *buf, unsigned long buf_size)
 {
     long ret = MMEM_DUMP_RET_OK;
@@ -334,63 +390,4 @@ static long _mmem_dump_cmd_mmem_info(mmem_block_table_t *table, char *buf, unsig
     info->max_active_size = table->max_active_size;
 
     return ret;
-}
-
-long mmem_dump(unsigned long cmd, void *buf, unsigned long buf_size)
-{
-    long ret = 0;
-    mmem_block_table_t *table = NULL;
-
-    _mmem_lock();
-
-    table = _mmem_block_table_get();
-
-    switch (cmd)
-    {
-    case MMEM_DUMP_CMD_COUNTS:
-        ret = _mmem_dump_cmd_counts(table, buf, buf_size);
-        break;
-
-    case MMEM_DUMP_CMD_MMEM_INFO:
-        ret = _mmem_dump_cmd_mmem_info(table, buf, buf_size);
-        break;
-
-    default:
-        // printf("mmem_dump: invalid cmd %ld\n", cmd);
-        ret = MMEM_DUMP_RET_INVALID_CMD;
-        break;
-    }
-
-    _mmem_unlock();
-
-    return ret;
-}
-
-void mmem_free_all(void)
-{
-    mmem_block_t *block = NULL, *n;
-    mmem_block_table_t *table = NULL;
-
-    _mmem_lock();
-
-    table = _mmem_block_table_get();
-
-    MLIST_FOR_EACH_ENTRY_SAFE(block, n, mmem_block_t, &(table->list), list) {
-
-        // check block magic
-        if (_mmem_check_block_magic_active(block)) {
-            printf("mmem_free_all: block %p magic error!\n", block);
-        }
-
-        // set block magic
-        _mmem_set_block_magic_free(block);
-
-        // delete old block
-        _mmem_block_del(table, block);
-
-        // free block
-        _real_free(block);
-    }
-
-    _mmem_unlock();
 }
