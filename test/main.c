@@ -11,15 +11,19 @@ static void mmem_debug_add_test(void)
 }
 
 int main() {
+    unsigned int result = 0;
+
     CU_initialize_registry();
 
     mmem_debug_add_test();
 
     CU_basic_set_mode(CU_BRM_VERBOSE);
-    
+
     CU_basic_run_tests();
-    
+
+    result = CU_get_number_of_failures();
+
     CU_cleanup_registry();
-    
-    return 0;
+
+    return result;
 }
