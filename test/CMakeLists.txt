@@ -15,7 +15,7 @@ add_executable(${MMEM_DEBUG_TEST_NAME} ${TEST_FILES})
 
 include_directories(CUnit/include tests)
 
-target_compile_definitions(mmem_debug PUBLIC __mmem_debug_enbale=1)
+target_compile_definitions(${MMEM_DEBUG_TEST_NAME} PRIVATE __mmem_debug_enbale=1)
 
 # mmem_debug
 target_link_libraries(${MMEM_DEBUG_TEST_NAME} mmem_debug)
