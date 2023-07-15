@@ -1,29 +1,26 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "tests.h"
 
-#include "mmem_debug.h"
+CU_pSuite g_suite = NULL;
 
-int main(int argc, char const *argv[])
+static void mmem_debug_add_test(void)
 {
-    char dump_buf[1024] = {0};
+    malloc_test_add_test();
+    calloc_test_add_test();
+    realloc_test_add_test();
+    free_test_add_test();
+}
 
-    printf("Hello world!\n");
+int main() {
+    CU_initialize_registry();
+    g_suite = CU_add_suite("test_suite", NULL, NULL);
 
-    char *buf = (char *)malloc(1024);
-    if (buf == NULL) {
-        printf("malloc failed!\n");
-        return -1;
-    }
+    mmem_debug_add_test();
 
-    printf("malloc success!, %p\n", buf);
-
-    mmem_dump(argc, argv, 100, dump_buf, 1024);
-    printf("%s\n", dump_buf);
-
-    free(buf);
-
-    mmem_dump(argc, argv, 100, dump_buf, 1024);
-    printf("%s\n", dump_buf);
-
+    CU_basic_set_mode(CU_BRM_VERBOSE);
+    
+    CU_basic_run_tests();
+    
+    CU_cleanup_registry();
+    
     return 0;
 }
