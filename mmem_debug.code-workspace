@@ -22,7 +22,8 @@
             "utility": "c",
             "random": "c",
             "tests.h": "c",
-            "mmem_debug.h": "c"
+            "mmem_debug.h": "c",
+            "mlist.h": "c"
         }
     }
 }

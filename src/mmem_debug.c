@@ -2,10 +2,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-// #define __mmem_debug_enbale 1
-
-// #if defined(__mmem_debug_enbale) && (__mmem_debug_enbale == 1)
-
 #include "mlist.h"
 
 #include "mmem_debug_adapter.h"
@@ -335,5 +331,3 @@ long mmem_dump(const int argc, const char **argv, unsigned long counts, char *bu
 
     return count;
 }
-
-// #endif/* defined(__mmem_debug_enbale) && (__mmem_debug_enbale == 1) */
