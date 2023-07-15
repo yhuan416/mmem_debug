@@ -1,6 +1,6 @@
 #include "tests.h"
 
-#define dump_test1_description "mmem_dump, arg test"
+#define dump_test1_description "arg test"
 void dump_test1(void)
 {
     long ret = 0;
@@ -24,29 +24,83 @@ void dump_test1(void)
     CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_BUF_SIZE_TOO_SMALL);
 }
 
-#define dump_test2_description "mmem_dump, cmd: MMEM_DUMP_CMD_COUNTS, get block counts"
+#define dump_test2_description "cmd: MMEM_DUMP_CMD_COUNTS, get block counts"
 void dump_test2(void)
 {
     long ret = 0;
-    char *buffer = NULL;
+    char *buffer = NULL, *buffer2 = NULL;
     unsigned long counts = 0;
 
+    // before malloc, counts should be 0
+    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, (void *)&counts, sizeof(counts));
+    CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
+    CU_ASSERT_EQUAL(counts, 0);
+
+    // malloc a 10 bytes buffer
     buffer = malloc(10);
     CU_ASSERT_PTR_NOT_NULL(buffer);
 
+    // after malloc, counts should be 1
     ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, (void *)&counts, sizeof(counts));
     CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
     CU_ASSERT_EQUAL(counts, 1);
 
+    // malloc a 20 bytes buffer
+    buffer2 = malloc(20);
+    CU_ASSERT_PTR_NOT_NULL(buffer2);
+
+    // after malloc, counts should be 2
+    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, (void *)&counts, sizeof(counts));
+    CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
+    CU_ASSERT_EQUAL(counts, 2);
+
+    // free buffer
+    free(buffer2);
     free(buffer);
 
+    // after free, counts should be 0
     ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, (void *)&counts, sizeof(counts));
     CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
     CU_ASSERT_EQUAL(counts, 0);
 }
 
-#define dump_test3_description "mmem_dump, cmd: MMEM_DUMP_CMD_MMEM_INFO, get mmem_info"
+#define dump_test3_description "cmd: MMEM_DUMP_CMD_COUNTS, get block counts with realloc"
 void dump_test3(void)
+{
+    long ret = 0;
+    unsigned long counts = 0;
+    char *buffer = NULL;
+
+    // malloc a 10 bytes buffer
+    buffer = malloc(10);
+    CU_ASSERT_PTR_NOT_NULL(buffer);
+
+    // after malloc, counts should be 1
+    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, (void *)&counts, sizeof(counts));
+    CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
+    CU_ASSERT_EQUAL(counts, 1);
+
+    // realloc buffer to 20 bytes
+    buffer = realloc(buffer, 20);
+    CU_ASSERT_PTR_NOT_NULL(buffer);
+
+    // after realloc, counts should be 1
+    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, (void *)&counts, sizeof(counts));
+    CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
+    CU_ASSERT_EQUAL(counts, 1);
+
+    // realloc buffer to 0 bytes(should be free)
+    buffer = realloc(buffer, 0);
+    CU_ASSERT_PTR_NULL(buffer);
+
+    // after realloc, counts should be 0
+    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, (void *)&counts, sizeof(counts));
+    CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
+    CU_ASSERT_EQUAL(counts, 0);
+}
+
+#define dump_test4_description "cmd: MMEM_DUMP_CMD_MMEM_INFO, get mmem_info"
+void dump_test4(void)
 {
     long ret = 0;
     mmem_info_t mmem_info = {0};
@@ -81,7 +135,13 @@ void dump_test_add_test(void)
 {
     CU_pSuite dump_suite = CU_add_suite("dump test", NULL, NULL);
 
+    // arg test
     CU_add_test(dump_suite, dump_test1_description, dump_test1);
+
+    // dump counts
     CU_add_test(dump_suite, dump_test2_description, dump_test2);
     CU_add_test(dump_suite, dump_test3_description, dump_test3);
+
+    // dump mem info
+    CU_add_test(dump_suite, dump_test4_description, dump_test4);
 }
