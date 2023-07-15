@@ -73,6 +73,8 @@ typedef struct mmem_block_table {
     MLIST list;
     unsigned long total_size;
     unsigned long active_size;
+    unsigned long max_total_size;
+    unsigned long max_active_size;
 } mmem_block_table_t;
 
 static mmem_block_table_t mmem_block_table = {0};
@@ -100,6 +102,12 @@ static mmem_block_table_t *_mmem_block_table_get(void)
         (_table)->count++; \
         (_table)->total_size += (_block)->total_size; \
         (_table)->active_size += (_block)->size; \
+        if ((_table)->active_size > (_table)->max_active_size) { \
+            (_table)->max_active_size = (_table)->active_size; \
+        } \
+        if ((_table)->total_size > (_table)->max_total_size) { \
+            (_table)->max_total_size = (_table)->total_size; \
+        } \
     } while(0)
 
 #define _mmem_block_del(_table, _block) \
@@ -300,8 +308,8 @@ long mmem_dump(const int argc, const char **argv, unsigned long counts, char *bu
     if (buf != NULL && buf_size > 0) {
 
         offset += snprintf(buf, buf_size, "========= mmem_dump start =========\n");
-        offset += snprintf(buf + offset, buf_size - offset, "counts: %lu, total: %lu, active: %lu\n", 
-                    count, table->total_size, table->active_size);
+        offset += snprintf(buf + offset, buf_size - offset, "counts: %lu, total: %lu, active: %lu, max_total: %lu, max_active: %lu\n", 
+                    count, table->total_size, table->active_size, table->max_total_size, table->max_active_size);
         offset += snprintf(buf + offset, buf_size - offset, "-----------------------------------\n");
         offset += snprintf(buf + offset, buf_size - offset, "size\tfile\n");
         offset += snprintf(buf + offset, buf_size - offset, "-----------------------------------\n");
