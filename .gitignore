@@ -53,6 +53,3 @@ dkms.conf
 
 build/
 .vscode/
-
-# keep cunit library
-!*libcunit.*
