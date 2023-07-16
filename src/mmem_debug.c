@@ -290,6 +290,7 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
 // mmem_dump
 static long _mmem_dump_cmd_counts(mmem_block_table_t *table, char *buf, unsigned long buf_size);
 static long _mmem_dump_cmd_mmem_info(mmem_block_table_t *table, char *buf, unsigned long buf_size);
+static long _mmem_dump_cmd_mmem_block_info(mmem_block_table_t *table, char *buf, unsigned long buf_size);
 
 long mmem_dump(unsigned long cmd, void *buf, unsigned long buf_size)
 {
@@ -308,6 +309,10 @@ long mmem_dump(unsigned long cmd, void *buf, unsigned long buf_size)
 
     case MMEM_DUMP_CMD_MMEM_INFO:
         ret = _mmem_dump_cmd_mmem_info(table, buf, buf_size);
+        break;
+    
+    case MMEM_DUMP_CMD_MMEM_BLOCK_INFO:
+        ret = _mmem_dump_cmd_mmem_block_info(table, buf, buf_size);
         break;
 
     default:
@@ -390,4 +395,41 @@ static long _mmem_dump_cmd_mmem_info(mmem_block_table_t *table, char *buf, unsig
     info->max_active_size = table->max_active_size;
 
     return ret;
+}
+
+static long _mmem_dump_cmd_mmem_block_info(mmem_block_table_t *table, char *buf, unsigned long buf_size)
+{
+    long counts = 0;
+    long ret = MMEM_DUMP_RET_OK;
+    mmem_block_t *block = NULL;
+    unsigned long size = buf_size;
+    mmem_block_info_t *info = (mmem_block_info_t *)buf;
+
+    // check buf
+    if (buf == NULL) {
+        return MMEM_DUMP_RET_EMPTY_BUF;
+    }
+
+    // check buf size
+    if (buf_size < sizeof(mmem_block_info_t)) {
+        return MMEM_DUMP_RET_BUF_SIZE_TOO_SMALL;
+    }
+
+    MLIST_FOR_EACH_ENTRY(block, mmem_block_t, &(table->list), list) {
+
+        info[counts].size = _mmem_block_size(block);
+        info[counts].total_size = _mmem_block_total_size(block);
+        info[counts].file = _mmem_block_file(block);
+        info[counts].line = _mmem_block_line(block);
+
+        counts++;
+
+        // check left buf size
+        size -= sizeof(mmem_block_info_t);
+        if (size < sizeof(mmem_block_info_t)) {
+            break;
+        }
+    }
+
+    return counts;
 }

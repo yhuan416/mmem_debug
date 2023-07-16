@@ -131,6 +131,31 @@ void dump_test4(void)
     CU_ASSERT_EQUAL(mmem_info.max_active_size, 2048);
 }
 
+#define dump_test5_description "cmd: MMEM_DUMP_CMD_MMEM_BLOCK_INFO, get mmem_block_info"
+void dump_test5(void)
+{
+    long ret = 0;
+    mmem_block_info_t mmem_info[5] = {0};
+    char *buffer = NULL;
+
+    // dump block info
+    ret = mmem_dump(MMEM_DUMP_CMD_MMEM_BLOCK_INFO, (void *)mmem_info, sizeof(mmem_info));
+    CU_ASSERT_EQUAL(ret, 0);
+
+    // malloc a 2048 bytes buffer(2KB)
+    buffer = malloc(2048);
+    CU_ASSERT_PTR_NOT_NULL(buffer);
+
+    // dump block info
+    ret = mmem_dump(MMEM_DUMP_CMD_MMEM_BLOCK_INFO, (void *)mmem_info, sizeof(mmem_info));
+    CU_ASSERT_EQUAL(ret, 1);
+    CU_ASSERT_EQUAL(mmem_info[0].size, 2048);
+    CU_ASSERT_PTR_NOT_NULL(mmem_info[0].file);
+    CU_ASSERT_NOT_EQUAL(mmem_info[0].line, 0);
+
+    free(buffer);
+}
+
 void dump_test_add_test(void)
 {
     CU_pSuite dump_suite = CU_add_suite("dump test", NULL, NULL);
@@ -144,4 +169,7 @@ void dump_test_add_test(void)
 
     // dump mem info
     CU_add_test(dump_suite, dump_test4_description, dump_test4);
+
+    // dump block info
+    CU_add_test(dump_suite, dump_test5_description, dump_test5);
 }
