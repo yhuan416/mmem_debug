@@ -1,24 +1,40 @@
-#include "tests.h"
+#include "common.h"
 
-#define free_test1_description "free(buffer), should success"
-void free_test1(void) {
-    char *buffer = malloc(1);
+/* run at the start of each suite */
+CU_SUITE_SETUP() {
+    return CUE_SUCCESS;
+}
+
+/* run at the end of the suite */
+CU_SUITE_TEARDOWN() {
+    return CUE_SUCCESS;
+}
+
+/* run at the start of each test */
+CU_TEST_SETUP() {
+
+}
+
+/* run at the end of each test */
+CU_TEST_TEARDOWN() {
+
+}
+
+static void free_test1(void)
+{
+    char *buffer = malloc(1024);
     CU_ASSERT_PTR_NOT_NULL(buffer);
     free(buffer);
     CU_PASS("free(buffer) success");
 }
 
-#define free_test2_description "free(NULL), should success"
-void free_test2(void)
+static void free_test2(void)
 {
     free(NULL);
     CU_PASS("free(NULL) success");
 }
 
-void free_test_add_test(void)
-{
-    CU_pSuite free_suite = CU_add_suite("free test", NULL, NULL);
-
-    CU_add_test(free_suite, free_test1_description, free_test1);
-    CU_add_test(free_suite, free_test2_description, free_test2);
-}
+CUNIT_CI_RUN(CU_MAIN_EXE_NAME,
+             CUNIT_CI_TEST(free_test1),
+             CUNIT_CI_TEST(free_test2)
+);

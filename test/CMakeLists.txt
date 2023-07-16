@@ -1,30 +1,31 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(MMEM_DEBUG_TEST_NAME mmem_debug_test)
+project(mmem_debug_tests C)
 
-# disable tests in CUnit
-set(CUNIT_DISABLE_TESTS TRUE)
-add_subdirectory(cunit-3.2.7/CUnit)
+set(common_libs cunit mmem_debug)
 
-set(tests 
-    tests/malloc_test.c
-    tests/calloc_test.c
-    tests/realloc_test.c
-    tests/free_test.c
-    tests/dump_test.c
-    tests/free_all_test.c
-)
+# 获取test目录下的所有文件
+file(GLOB TEST_FILES tests/*.c)
 
-set(TEST_FILES main.c ${tests})
+# 为每个测试文件创建一个可执行文件
+foreach(TEST_FILE ${TEST_FILES})
+    message(STATUS "TEST_FILE: ${TEST_FILE}")
 
-add_executable(${MMEM_DEBUG_TEST_NAME} ${TEST_FILES})
-include_directories(tests)
+    get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
+    message(STATUS "TEST_NAME: ${TEST_NAME}")
 
-# mmem_debug
-target_compile_definitions(${MMEM_DEBUG_TEST_NAME} PRIVATE __mmem_debug_enbale=1)
-target_link_libraries(${MMEM_DEBUG_TEST_NAME} mmem_debug)
+    # add executable
+    add_executable(${TEST_NAME} ${TEST_FILE})
 
-# CUnit
-target_link_libraries(${MMEM_DEBUG_TEST_NAME} cunit)
+    # add include path
+    target_include_directories(${TEST_NAME} PRIVATE include)
 
-add_test(NAME ${MMEM_DEBUG_TEST_NAME} COMMAND ${MMEM_DEBUG_TEST_NAME})
+    # add link library
+    target_link_libraries(${TEST_NAME} ${common_libs})
+
+    # add compile definition
+    target_compile_definitions(${TEST_NAME} PRIVATE __mmem_debug_enbale=1)
+
+    # add test
+    add_test(NAME ${TEST_NAME} COMMAND $<TARGET_FILE:${TEST_NAME}>)
+endforeach()

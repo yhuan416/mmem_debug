@@ -24,7 +24,8 @@
             "tests.h": "c",
             "mmem_debug.h": "c",
             "mlist.h": "c",
-            "mmem_debug_adapter.h": "c"
+            "mmem_debug_adapter.h": "c",
+            "basic.h": "c"
         }
     }
 }

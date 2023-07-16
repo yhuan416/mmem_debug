@@ -103,13 +103,8 @@ ret = mmem_dump(MMEM_DUMP_CMD_MMEM_INFO, (void *)&mmem_info, sizeof(mmem_info));
 
 ## 4. TODO
 
-- [x] 补充测试用例(CUnit)
-- [ ] 调整dump接口形式
-    - 以数组形式返回信息, 数据的打印由外部进行封装
-    - 支持只dump总体信息 或者 dump详细信息(类似ioctl)
 - [ ] 统一模块内用到的打印接口, 方便对接日志模块
 - [ ] 调整库整体接口, 支持封装层, 方便移植
     - 临界区(锁)
     - 打印接口
-- [x] 支持free_all接口, 释放所有未被释放的内存
 - [ ] 支持内存越界检测接口
