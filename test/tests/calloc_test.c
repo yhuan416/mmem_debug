@@ -1,31 +1,48 @@
-#include "tests.h"
+#include "common.h"
 
-#define calloc_test1_description "calloc(1, 10), should not return NULL"
-void calloc_test1(void) {
-    char *buffer = calloc(1, 10);
+/* run at the start of each suite */
+CU_SUITE_SETUP() {
+    return CUE_SUCCESS;
+}
+
+/* run at the end of the suite */
+CU_SUITE_TEARDOWN() {
+    return CUE_SUCCESS;
+}
+
+/* run at the start of each test */
+CU_TEST_SETUP() {
+
+}
+
+/* run at the end of each test */
+CU_TEST_TEARDOWN() {
+
+}
+
+static void calloc_test1(void)
+{
+    char *buffer = calloc(1, 1024);
     CU_ASSERT_PTR_NOT_NULL(buffer);
     free(buffer);
 }
 
-#define calloc_test2_description "calloc(0, 10), should return NULL"
-void calloc_test2(void) {
-    char *buffer = calloc(0, 10);
+static void calloc_test2(void)
+{
+    char *buffer = calloc(0, 1024);
     CU_ASSERT_PTR_NULL(buffer);
     free(buffer);
 }
 
-#define calloc_test3_description "calloc(1, 0), should return NULL"
-void calloc_test3(void) {
+static void calloc_test3(void)
+{
     char *buffer = calloc(1, 0);
     CU_ASSERT_PTR_NULL(buffer);
     free(buffer);
 }
 
-void calloc_test_add_test(void)
-{
-    CU_pSuite calloc_suite = CU_add_suite("calloc test", NULL, NULL);
-
-    CU_add_test(calloc_suite, calloc_test1_description, calloc_test1);
-    CU_add_test(calloc_suite, calloc_test2_description, calloc_test2);
-    CU_add_test(calloc_suite, calloc_test3_description, calloc_test3);
-}
+CUNIT_CI_RUN(CU_MAIN_EXE_NAME,
+             CUNIT_CI_TEST(calloc_test1),
+             CUNIT_CI_TEST(calloc_test2),
+             CUNIT_CI_TEST(calloc_test3)
+);

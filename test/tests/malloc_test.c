@@ -1,23 +1,40 @@
-#include "tests.h"
+#include "common.h"
 
-#define malloc_test1_description "malloc(1), should not return NULL"
-void malloc_test1(void) {
-    char *buffer = malloc(1);
+/* run at the start of each suite */
+CU_SUITE_SETUP() {
+    return CUE_SUCCESS;
+}
+
+/* run at the end of the suite */
+CU_SUITE_TEARDOWN() {
+    return CUE_SUCCESS;
+}
+
+/* run at the start of each test */
+CU_TEST_SETUP() {
+
+}
+
+/* run at the end of each test */
+CU_TEST_TEARDOWN() {
+
+}
+
+static void malloc_test1(void)
+{
+    char *buffer = malloc(1024);
     CU_ASSERT_PTR_NOT_NULL(buffer);
     free(buffer);
 }
 
-#define malloc_test2_description "malloc(0), should return NULL"
-void malloc_test2(void) {
+static void malloc_test2(void)
+{
     char *buffer = malloc(0);
     CU_ASSERT_PTR_NULL(buffer);
     free(buffer);
 }
 
-void malloc_test_add_test(void)
-{
-    CU_pSuite malloc_suite = CU_add_suite("malloc test", NULL, NULL);
-
-    CU_add_test(malloc_suite, malloc_test1_description, malloc_test1);
-    CU_add_test(malloc_suite, malloc_test2_description, malloc_test2);
-}
+CUNIT_CI_RUN(CU_MAIN_EXE_NAME,
+             CUNIT_CI_TEST(malloc_test1),
+             CUNIT_CI_TEST(malloc_test2)
+);

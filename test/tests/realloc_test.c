@@ -1,47 +1,60 @@
-#include "tests.h"
+#include "common.h"
 
-#define realloc_test1_description "realloc(buffer, 20), should not return NULL"
-void realloc_test1(void)
+/* run at the start of each suite */
+CU_SUITE_SETUP() {
+    return CUE_SUCCESS;
+}
+
+/* run at the end of the suite */
+CU_SUITE_TEARDOWN() {
+    return CUE_SUCCESS;
+}
+
+/* run at the start of each test */
+CU_TEST_SETUP() {
+
+}
+
+/* run at the end of each test */
+CU_TEST_TEARDOWN() {
+
+}
+
+static void realloc_test1(void)
 {
-    char *buffer = malloc(10);
+    char *buffer = malloc(1024);
     CU_ASSERT_PTR_NOT_NULL(buffer);
-    buffer = realloc(buffer, 20);
+    buffer = realloc(buffer, 2048);
     CU_ASSERT_PTR_NOT_NULL(buffer);
     free(buffer);
 }
 
-#define realloc_test2_description "realloc(NULL, 20), should not return NULL"
-void realloc_test2(void)
+static void realloc_test2(void)
 {
-    char *buffer = realloc(NULL, 20);
+    char *buffer = realloc(NULL, 2048);
     CU_ASSERT_PTR_NOT_NULL(buffer);
     free(buffer);
 }
 
-#define realloc_test3_description "realloc(buffer, 0), should return NULL"
-void realloc_test3(void)
+static void realloc_test3(void)
 {
-    char *buffer = malloc(10);
+    char *buffer = malloc(1024);
     CU_ASSERT_PTR_NOT_NULL(buffer);
     buffer = realloc(buffer, 0);
     CU_ASSERT_PTR_NULL(buffer);
     free(buffer);
 }
 
-#define realloc_test4_description "realloc(NULL, 0), should return NULL"
-void realloc_test4(void)
+static void realloc_test4(void)
 {
     char *buffer = realloc(NULL, 0);
     CU_ASSERT_PTR_NULL(buffer);
     free(buffer);
 }
 
-void realloc_test_add_test(void)
-{
-    CU_pSuite realloc_suite = CU_add_suite("realloc test", NULL, NULL);
-
-    CU_add_test(realloc_suite, realloc_test1_description, realloc_test1);
-    CU_add_test(realloc_suite, realloc_test2_description, realloc_test2);
-    CU_add_test(realloc_suite, realloc_test3_description, realloc_test3);
-    CU_add_test(realloc_suite, realloc_test4_description, realloc_test4);
-}
+CUNIT_CI_RUN(CU_MAIN_EXE_NAME,
+             CUNIT_CI_TEST(realloc_test1),
+             CUNIT_CI_TEST(realloc_test2),
+             CUNIT_CI_TEST(realloc_test3),
+             CUNIT_CI_TEST(realloc_test4)
+);

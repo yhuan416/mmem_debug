@@ -1,15 +1,11 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(MMEM_DEBUG_TESTS C)
-
-# disable tests in CUnit
-set(CUNIT_DISABLE_TESTS TRUE)
-add_subdirectory(cunit-3.2.7/CUnit)
+project(mmem_debug_tests C)
 
 set(common_libs cunit mmem_debug)
 
 # 获取test目录下的所有文件
-file(GLOB TEST_FILES test/*.c)
+file(GLOB TEST_FILES tests/*.c)
 
 # 为每个测试文件创建一个可执行文件
 foreach(TEST_FILE ${TEST_FILES})
@@ -22,7 +18,7 @@ foreach(TEST_FILE ${TEST_FILES})
     add_executable(${TEST_NAME} ${TEST_FILE})
 
     # add include path
-    target_include_directories(${TEST_NAME} PRIVATE test)
+    target_include_directories(${TEST_NAME} PRIVATE include)
 
     # add link library
     target_link_libraries(${TEST_NAME} ${common_libs})
