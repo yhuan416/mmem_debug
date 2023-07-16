@@ -62,54 +62,43 @@ extern void mmem_free(void *addr, const char *file, int line);
 */
 extern void *mmem_realloc(void *addr, unsigned long size, const char *file, int line);
 
+/**
+ * @brief mmem_free_all     free all memory
+ * @return void
+*/
+extern void mmem_free_all(void);
 ```
 
 ## 3. dump内存信息
 
 ``` c
+// dump command
+#define MMEM_DUMP_CMD_COUNTS            (0x01)
+#define MMEM_DUMP_CMD_MMEM_INFO         (0x02)
 
 /**
- * @brief mmem_dump         dump memory
- * @param argc[in]          argument counts
- * @param argv[in]          argument values
- * @param counts[in]        item counts
- * @param buf[out]          buffer to store dump data
+ * @brief mmem_dump         dump memory info
+ * @param cmd[in]           command, see MMEM_DUMP_CMD_XXX
+ * @param buf[out]          buffer to store data
  * @param buf_size[in]      buffer size
- * @return (long)           dump data size
+ * @return (long)           0: success, others: fail
 */
-extern long mmem_dump(const int argc, const char **argv, unsigned long counts, char *buf, unsigned long buf_size);
+extern long mmem_dump(unsigned long cmd, void *buf, unsigned long buf_size);
 
 ...
 
 // example
-char dump_buf[1024] = {0};
-mmem_dump(0, NULL, 100, dump_buf, 1024);
-printf("%s\n", dump_buf);
+long ret = 0;
+unsigned long counts = 0;
+ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, (void *)&counts, sizeof(counts));
+if (ret == MMEM_DUMP_RET_OK) {
+    printf("counts: %lu\n", counts);
+}
+
+mmem_info_t mmem_info = {0};
+ret = mmem_dump(MMEM_DUMP_CMD_MMEM_INFO, (void *)&mmem_info, sizeof(mmem_info));
 
 ...
-
-```
-
-``` txt
-
-// output
-========= mmem_dump start =========
-counts: 1, total: 1088, active: 1024
------------------------------------
-size    file
------------------------------------
-1024    /home/yhuan/workspace/mmem_debug/test/main.c:12
-
-=========  mmem_dump end  =========
-
-
-counts          : 当前申请了多少个内存块
-total           : 当前申请的内存总大小(包含了内存管理结构体的大小)
-active          : 当前申请的内存总大小(不包含内存管理结构体的大小)
-
-size            : 当前内存块的大小
-file            : 当前内存块的申请位置
-
 ```
 
 ## 4. TODO
@@ -122,5 +111,5 @@ file            : 当前内存块的申请位置
 - [ ] 调整库整体接口, 支持封装层, 方便移植
     - 临界区(锁)
     - 打印接口
-- [ ] 支持free_all接口, 释放所有未被释放的内存
+- [x] 支持free_all接口, 释放所有未被释放的内存
 - [ ] 支持内存越界检测接口

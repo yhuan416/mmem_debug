@@ -16,6 +16,8 @@ void malloc_test2(void) {
 
 void malloc_test_add_test(void)
 {
-    CU_add_test(g_suite, malloc_test1_description, malloc_test1);
-    CU_add_test(g_suite, malloc_test2_description, malloc_test2);
+    CU_pSuite malloc_suite = CU_add_suite("malloc test", NULL, NULL);
+
+    CU_add_test(malloc_suite, malloc_test1_description, malloc_test1);
+    CU_add_test(malloc_suite, malloc_test2_description, malloc_test2);
 }

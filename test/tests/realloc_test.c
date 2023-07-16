@@ -38,8 +38,10 @@ void realloc_test4(void)
 
 void realloc_test_add_test(void)
 {
-    CU_add_test(g_suite, realloc_test1_description, realloc_test1);
-    CU_add_test(g_suite, realloc_test2_description, realloc_test2);
-    CU_add_test(g_suite, realloc_test3_description, realloc_test3);
-    CU_add_test(g_suite, realloc_test4_description, realloc_test4);
+    CU_pSuite realloc_suite = CU_add_suite("realloc test", NULL, NULL);
+
+    CU_add_test(realloc_suite, realloc_test1_description, realloc_test1);
+    CU_add_test(realloc_suite, realloc_test2_description, realloc_test2);
+    CU_add_test(realloc_suite, realloc_test3_description, realloc_test3);
+    CU_add_test(realloc_suite, realloc_test4_description, realloc_test4);
 }

@@ -23,7 +23,9 @@ void calloc_test3(void) {
 
 void calloc_test_add_test(void)
 {
-    CU_add_test(g_suite, calloc_test1_description, calloc_test1);
-    CU_add_test(g_suite, calloc_test2_description, calloc_test2);
-    CU_add_test(g_suite, calloc_test3_description, calloc_test3);
+    CU_pSuite calloc_suite = CU_add_suite("calloc test", NULL, NULL);
+
+    CU_add_test(calloc_suite, calloc_test1_description, calloc_test1);
+    CU_add_test(calloc_suite, calloc_test2_description, calloc_test2);
+    CU_add_test(calloc_suite, calloc_test3_description, calloc_test3);
 }
