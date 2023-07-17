@@ -130,22 +130,22 @@ void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* fil
 
     size = counts * item_size;
     total_size = _mmem_total_size(size);
-    block = (mmem_block_t *)_real_calloc(1, total_size);
-    if (block == NULL) {
-        return NULL;
-    }
 
     _mmem_lock();
 
-    table = _mmem_block_table_get();
+    block = (mmem_block_t *)_real_calloc(1, total_size);
+    if (block == NULL) {
+        _mmem_unlock();
+        return NULL;
+    }
 
     _mmem_block_update(block, size, total_size, file, line);
 
     _mmem_set_block_magic_active(block);
 
-    MLIST_INIT(&(block->list));
-
     // add to block table
+    table = _mmem_block_table_get();
+    MLIST_INIT(&(block->list));
     _mmem_block_add(table, block);
 
     _mmem_unlock();
@@ -165,14 +165,14 @@ void *mmem_alloc(unsigned long size, const char* file, int line)
     }
 
     total_size = _mmem_total_size(size);
-    block = (mmem_block_t *)_real_malloc(total_size);
-    if (block == NULL) {
-        return NULL;
-    }
 
     _mmem_lock();
 
-    table = _mmem_block_table_get();
+    block = (mmem_block_t *)_real_malloc(total_size);
+    if (block == NULL) {
+        _mmem_unlock();
+        return NULL;
+    }
 
     // update block info
     _mmem_block_update(block, size, total_size, file, line);
@@ -180,9 +180,9 @@ void *mmem_alloc(unsigned long size, const char* file, int line)
     // set block magic
     _mmem_set_block_magic_active(block);
 
-    MLIST_INIT(&(block->list));
-
     // add to block table
+    table = _mmem_block_table_get();
+    MLIST_INIT(&(block->list));
     _mmem_block_add(table, block);
 
     _mmem_unlock();
@@ -202,13 +202,10 @@ void mmem_free(void* addr, const char* file, int line)
 
     _mmem_lock();
 
-    table = _mmem_block_table_get();
-
     block = _mmem_get_block(addr);
-
     if (_mmem_check_block_magic_active(block)) {
-        printf("mmem_free: block %p magic error!\n", block);
         _mmem_unlock();
+        printf("mmem_free: block %p magic error!\n", block);
         return;
     }
 
@@ -216,11 +213,12 @@ void mmem_free(void* addr, const char* file, int line)
     _mmem_set_block_magic_free(block);
 
     // delete old block
+    table = _mmem_block_table_get();
     _mmem_block_del(table, block);
 
-    _mmem_unlock();
-
     _real_free(block);
+
+    _mmem_unlock();
 }
 
 
@@ -233,7 +231,7 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
 
     // if addr is NULL, realloc is equal to malloc
     if (addr == NULL) {
-        return mmem_alloc( size, file, line );
+        return mmem_alloc(size, file, line);
     }
 
     // if size is 0, realloc is equal to free
@@ -244,13 +242,10 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
 
     _mmem_lock();
 
-    table = _mmem_block_table_get();
-
     block = _mmem_get_block(addr);
-
     if (_mmem_check_block_magic_active(block)) {
-        printf("mmem_realloc: block %p magic error!\n", block);
         _mmem_unlock();
+        printf("mmem_realloc: block %p magic error!\n", block);
         return NULL;
     }
 
@@ -258,14 +253,23 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
     _mmem_set_block_magic_free(block);
 
     // delete old block
+    table = _mmem_block_table_get();
     _mmem_block_del(table, block);
 
     // alloc new block
     total_size = _mmem_total_size(size);
     new_block = (mmem_block_t *)_real_realloc(block, total_size);
-    if (new_block == NULL) {
-        printf("mmem_realloc: realloc failed!\n");
+    if (new_block == NULL) { // realloc failed, restore old block.
+        // set old block magic to active
+        _mmem_set_block_magic_active(block);
+
+        // add old block to block table
+        MLIST_INIT(&(block->list));
+        _mmem_block_add(table, block);
+
         _mmem_unlock();
+
+        printf("mmem_realloc: realloc failed!\n");
         return NULL;
     }
 
@@ -277,9 +281,8 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
     // set new block magic
     _mmem_set_block_magic_active(block);
 
-    MLIST_INIT(&(block->list));
-
     // add to block table
+    MLIST_INIT(&(block->list));
     _mmem_block_add(table, block);
 
     _mmem_unlock();
