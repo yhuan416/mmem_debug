@@ -98,13 +98,19 @@ extern long mmem_dump(unsigned long cmd, unsigned long counts, void *buf, unsign
 // example
 long ret = 0;
 unsigned long counts = 0;
-ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, (void *)&counts, sizeof(counts));
+ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, 0, (void *)&counts, sizeof(unsigned long));
 if (ret == MMEM_DUMP_RET_OK) {
     printf("counts: %lu\n", counts);
 }
 
 mmem_info_t mmem_info = {0};
-ret = mmem_dump(MMEM_DUMP_CMD_MMEM_INFO, (void *)&mmem_info, sizeof(mmem_info));
+ret = mmem_dump(MMEM_DUMP_CMD_MMEM_INFO, 0, (void *)&mmem_info, sizeof(mmem_info_t));
+
+mmem_block_info_t mmem_block_info[10] = {0};
+ret = mmem_dump(MMEM_DUMP_CMD_MMEM_BLOCK_INFO, 10, (void *)mmem_block_info, sizeof(mmem_block_info_t) * 10);
+if (ret > 0) {
+    // dump success, ret is the counts of data
+}
 
 ...
 ```

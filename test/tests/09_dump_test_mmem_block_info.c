@@ -58,7 +58,18 @@ static void dump_test_mmem_block_info_2(void)
     _dump_mmem_block_info(mmem_block_info, ret);
 }
 
+static void dump_test_mmem_block_info_3(void)
+{
+    long ret;
+    mmem_block_info_t mmem_block_info[10] = {0};
+
+    ret = mmem_dump(MMEM_DUMP_CMD_MMEM_BLOCK_INFO, 10, (void *)mmem_block_info, sizeof(mmem_block_info_t) * 10);
+    CU_ASSERT_EQUAL(ret, 3);
+    _dump_mmem_block_info(mmem_block_info, ret);
+}
+
 CUNIT_CI_RUN(CU_MAIN_EXE_NAME,
              CUNIT_CI_TEST(dump_test_mmem_block_info_1),
-             CUNIT_CI_TEST(dump_test_mmem_block_info_2)
+             CUNIT_CI_TEST(dump_test_mmem_block_info_2),
+             CUNIT_CI_TEST(dump_test_mmem_block_info_3)
 );
