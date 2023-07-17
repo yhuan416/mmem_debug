@@ -29,7 +29,13 @@ foreach(TEST_FILE ${TEST_FILES})
     # add test, if use valgrind, add valgrind command
     if (use_valgrind)
         add_test(NAME ${TEST_NAME} 
-            COMMAND valgrind --leak-check=full --show-reachable=yes --trace-children=yes $<TARGET_FILE:${TEST_NAME}>)
+            COMMAND valgrind 
+                    --leak-check=full 
+                    --show-reachable=yes 
+                    --trace-children=yes 
+                    --error-exitcode=1 
+                    --suppressions=${CMAKE_CURRENT_SOURCE_DIR}/valgrind/double_free.supp
+                    $<TARGET_FILE:${TEST_NAME}>)
     else ()
         add_test(NAME ${TEST_NAME} COMMAND $<TARGET_FILE:${TEST_NAME}>)
     endif ()

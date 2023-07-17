@@ -31,7 +31,7 @@ static void dump_test_counts1(void)
     long ret = 0;
     unsigned long counts = 0;
 
-    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, &counts, sizeof(counts));
+    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, 0, &counts, sizeof(counts));
     CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
     CU_ASSERT_EQUAL(counts, 1);
 }
@@ -41,7 +41,7 @@ static void dump_test_counts2(void)
     long ret = 0;
     unsigned long counts = 0;
 
-    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, &counts, sizeof(counts));
+    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, 0, &counts, sizeof(counts));
     CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
     CU_ASSERT_EQUAL(counts, 2);
 }
@@ -51,7 +51,7 @@ static void dump_test_counts3(void)
     long ret = 0;
     unsigned long counts = 0;
 
-    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, &counts, sizeof(counts));
+    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, 0, &counts, sizeof(counts));
     CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
     CU_ASSERT_EQUAL(counts, 3);
 }

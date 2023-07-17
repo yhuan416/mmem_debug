@@ -1,5 +1,11 @@
 # mmem_debug
 
+![GitHub](https://img.shields.io/github/license/yhuan416/mmem_debug)
+![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/yhuan416/mmem_debug)
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/yhuan416/mmem_debug/cmake.yml)
+![GitHub forks](https://img.shields.io/github/forks/yhuan416/mmem_debug)
+![GitHub Repo stars](https://img.shields.io/github/stars/yhuan416/mmem_debug)
+
 内存调试工具，用于检测内存泄漏，内存越界等问题。
 
 此库设计的初衷是为了能够方便的对程序的内存使用情况进行测试, 同时, 在正式发布版本中, 可以关闭相关功能, 减少内存占用以及性能损耗。
@@ -75,15 +81,17 @@ extern void mmem_free_all(void);
 // dump command
 #define MMEM_DUMP_CMD_COUNTS            (0x01)
 #define MMEM_DUMP_CMD_MMEM_INFO         (0x02)
+#define MMEM_DUMP_CMD_MMEM_BLOCK_INFO   (0x03)
 
 /**
  * @brief mmem_dump         dump memory info
  * @param cmd[in]           command, see MMEM_DUMP_CMD_XXX
+ * @param counts[in]        counts of data
  * @param buf[out]          buffer to store data
  * @param buf_size[in]      buffer size
  * @return (long)           0: success, others: fail
 */
-extern long mmem_dump(unsigned long cmd, void *buf, unsigned long buf_size);
+extern long mmem_dump(unsigned long cmd, unsigned long counts, void *buf, unsigned long buf_size);
 
 ...
 
