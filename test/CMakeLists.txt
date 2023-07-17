@@ -26,7 +26,11 @@ foreach(TEST_FILE ${TEST_FILES})
     # add compile definition
     target_compile_definitions(${TEST_NAME} PRIVATE __mmem_debug_enbale=1)
 
-    # add test
-    add_test(NAME ${TEST_NAME} 
-        COMMAND valgrind  --leak-check=full --show-reachable=yes --trace-children=yes $<TARGET_FILE:${TEST_NAME}>)
+    # add test, if use valgrind, add valgrind command
+    if (use_valgrind)
+        add_test(NAME ${TEST_NAME} 
+            COMMAND valgrind --leak-check=full --show-reachable=yes --trace-children=yes $<TARGET_FILE:${TEST_NAME}>)
+    else ()
+        add_test(NAME ${TEST_NAME} COMMAND $<TARGET_FILE:${TEST_NAME}>)
+    endif ()
 endforeach()
