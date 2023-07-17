@@ -7,6 +7,7 @@ CU_SUITE_SETUP() {
 
 /* run at the end of the suite */
 CU_SUITE_TEARDOWN() {
+    mmem_free_all();
     return CUE_SUCCESS;
 }
 

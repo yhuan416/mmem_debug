@@ -7,6 +7,7 @@ CU_SUITE_SETUP() {
 
 /* run at the end of the suite */
 CU_SUITE_TEARDOWN() {
+    mmem_free_all();
     return CUE_SUCCESS;
 }
 
@@ -22,27 +23,21 @@ CU_TEST_TEARDOWN() {
 
 static void calloc_test1(void)
 {
-    char *buffer = calloc(1, 1024);
-    CU_ASSERT_PTR_NOT_NULL(buffer);
-    free(buffer);
+    CU_ASSERT_PTR_NOT_NULL(calloc(1, 1024));
 }
 
-static void calloc_test2(void)
+static void calloc_test2_calloc_counts_0(void)
 {
-    char *buffer = calloc(0, 1024);
-    CU_ASSERT_PTR_NULL(buffer);
-    free(buffer);
+    CU_ASSERT_PTR_NULL(calloc(0, 1024));
 }
 
-static void calloc_test3(void)
+static void calloc_test3_calloc_size_0(void)
 {
-    char *buffer = calloc(1, 0);
-    CU_ASSERT_PTR_NULL(buffer);
-    free(buffer);
+    CU_ASSERT_PTR_NULL(calloc(1, 0));
 }
 
 CUNIT_CI_RUN(CU_MAIN_EXE_NAME,
              CUNIT_CI_TEST(calloc_test1),
-             CUNIT_CI_TEST(calloc_test2),
-             CUNIT_CI_TEST(calloc_test3)
+             CUNIT_CI_TEST(calloc_test2_calloc_counts_0),
+             CUNIT_CI_TEST(calloc_test3_calloc_size_0)
 );

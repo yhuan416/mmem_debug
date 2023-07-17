@@ -27,5 +27,6 @@ foreach(TEST_FILE ${TEST_FILES})
     target_compile_definitions(${TEST_NAME} PRIVATE __mmem_debug_enbale=1)
 
     # add test
-    add_test(NAME ${TEST_NAME} COMMAND $<TARGET_FILE:${TEST_NAME}>)
+    add_test(NAME ${TEST_NAME} 
+        COMMAND valgrind  --leak-check=full --show-reachable=yes --trace-children=yes $<TARGET_FILE:${TEST_NAME}>)
 endforeach()
