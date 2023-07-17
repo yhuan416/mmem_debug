@@ -29,10 +29,11 @@ typedef struct mmem_block_info {
 /**
  * @brief mmem_dump         dump memory info
  * @param cmd[in]           command, see MMEM_DUMP_CMD_XXX
+ * @param counts[in]        counts of data
  * @param buf[out]          buffer to store data
  * @param buf_size[in]      buffer size
  * @return (long)           0: success, others: fail
 */
-extern long mmem_dump(unsigned long cmd, void *buf, unsigned long buf_size);
+extern long mmem_dump(unsigned long cmd, unsigned long counts, void *buf, unsigned long buf_size);
 
 #endif // !__MMEM_DUMP_H__

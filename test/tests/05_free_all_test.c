@@ -36,7 +36,7 @@ static void free_all_test1(void)
     CU_ASSERT_PTR_NOT_NULL(buffer2);
 
     // get counts, should be 2
-    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, (void *)&counts, sizeof(counts));
+    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, 0, (void *)&counts, sizeof(counts));
     CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
     CU_ASSERT_EQUAL(counts, 2);
 
@@ -44,7 +44,7 @@ static void free_all_test1(void)
     mmem_free_all();
 
     // get counts, should be 0
-    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, (void *)&counts, sizeof(counts));
+    ret = mmem_dump(MMEM_DUMP_CMD_COUNTS, 0, (void *)&counts, sizeof(counts));
     CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
     CU_ASSERT_EQUAL(counts, 0);
 }

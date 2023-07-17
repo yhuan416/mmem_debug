@@ -75,15 +75,17 @@ extern void mmem_free_all(void);
 // dump command
 #define MMEM_DUMP_CMD_COUNTS            (0x01)
 #define MMEM_DUMP_CMD_MMEM_INFO         (0x02)
+#define MMEM_DUMP_CMD_MMEM_BLOCK_INFO   (0x03)
 
 /**
  * @brief mmem_dump         dump memory info
  * @param cmd[in]           command, see MMEM_DUMP_CMD_XXX
+ * @param counts[in]        counts of data
  * @param buf[out]          buffer to store data
  * @param buf_size[in]      buffer size
  * @return (long)           0: success, others: fail
 */
-extern long mmem_dump(unsigned long cmd, void *buf, unsigned long buf_size);
+extern long mmem_dump(unsigned long cmd, unsigned long counts, void *buf, unsigned long buf_size);
 
 ...
 

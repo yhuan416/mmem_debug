@@ -52,7 +52,7 @@ static void dump_test_mmem_info_A1024_MA1024(void)
     long ret = 0;
     mmem_info_t mmem_info = {0};
 
-    ret = mmem_dump(MMEM_DUMP_CMD_MMEM_INFO, &mmem_info, sizeof(mmem_info_t));
+    ret = mmem_dump(MMEM_DUMP_CMD_MMEM_INFO, 0, &mmem_info, sizeof(mmem_info_t));
     CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
     CU_ASSERT_EQUAL(mmem_info.counts, 1);
     CU_ASSERT_EQUAL(mmem_info.active_size, 1024);
@@ -64,7 +64,7 @@ static void dump_test_mmem_info_A1024_MA2048(void)
     long ret = 0;
     mmem_info_t mmem_info = {0};
 
-    ret = mmem_dump(MMEM_DUMP_CMD_MMEM_INFO, &mmem_info, sizeof(mmem_info_t));
+    ret = mmem_dump(MMEM_DUMP_CMD_MMEM_INFO, 0, &mmem_info, sizeof(mmem_info_t));
     CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
     CU_ASSERT_EQUAL(mmem_info.counts, 1);
     CU_ASSERT_EQUAL(mmem_info.active_size, 1024);
@@ -76,7 +76,7 @@ static void dump_test_mmem_info_A1024_MA3072(void)
     long ret = 0;
     mmem_info_t mmem_info = {0};
 
-    ret = mmem_dump(MMEM_DUMP_CMD_MMEM_INFO, &mmem_info, sizeof(mmem_info_t));
+    ret = mmem_dump(MMEM_DUMP_CMD_MMEM_INFO, 0, &mmem_info, sizeof(mmem_info_t));
     CU_ASSERT_EQUAL(ret, MMEM_DUMP_RET_OK);
     CU_ASSERT_EQUAL(mmem_info.counts, 1);
     CU_ASSERT_EQUAL(mmem_info.active_size, 1024);
