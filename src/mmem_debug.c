@@ -416,7 +416,7 @@ static long _mmem_dump_cmd_mmem_block_info(mmem_block_table_t *table, unsigned l
     }
 
     if (counts == 0) {
-        return MMEM_DUMP_RET_OK;
+        return 0;
     }
 
     MLIST_FOR_EACH_ENTRY(block, mmem_block_t, &(table->list), list) {
