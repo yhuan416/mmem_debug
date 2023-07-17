@@ -1,0 +1,32 @@
+version: '1.0'
+name: cmake-gitee
+displayName: cmake-gitee
+triggers:
+  trigger: auto
+  push:
+    branches:
+      include:
+        - '*'
+stages:
+  - name: stage-3ef0fc04
+    displayName: 构建-测试
+    strategy: naturally
+    trigger: auto
+    executor: []
+    steps:
+      - step: build@gcc
+        name: cmake-ctest
+        displayName: cmake 构建-测试
+        gccVersion: '9.4'
+        commands:
+          - '# 新建build目录，切换到build目录'
+          - 'mkdir build && cd build '
+          - '# 生成Unix平台的makefiles文件并执行构建'
+          - cmake -G 'Unix Makefiles' ../ && make -j
+          - ctest -V
+        caches: []
+        notify: []
+        strategy:
+          retry: '0'
+strategy:
+  blocking: true
