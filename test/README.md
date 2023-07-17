@@ -23,3 +23,9 @@ cmake会自动扫描tests目录下的.c文件, 并将其编译为可执行文件
 预留了一份测试用例模板, 位于 tests/00_template.c
 
 可以将其复制一份, 并修改文件名, 以添加新的测试用例
+
+## 3. 安装valgrind工具
+
+``` shell
+sudo apt-get update && sudo apt-get install -y valgrind
+```
