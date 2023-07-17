@@ -1,5 +1,11 @@
 # mmem_debug
 
+![GitHub](https://img.shields.io/github/license/yhuan416/mmem_debug)
+![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/yhuan416/mmem_debug)
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/yhuan416/mmem_debug/cmake.yml)
+![GitHub forks](https://img.shields.io/github/forks/yhuan416/mmem_debug)
+![GitHub Repo stars](https://img.shields.io/github/stars/yhuan416/mmem_debug)
+
 内存调试工具，用于检测内存泄漏，内存越界等问题。
 
 此库设计的初衷是为了能够方便的对程序的内存使用情况进行测试, 同时, 在正式发布版本中, 可以关闭相关功能, 减少内存占用以及性能损耗。
