@@ -1,4 +1,4 @@
-# mmem_debug
+# (Monitor) Memory Debug Library
 
 ![GitHub](https://img.shields.io/github/license/yhuan416/mmem_debug)
 ![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/yhuan416/mmem_debug)
@@ -14,8 +14,8 @@
 
 相关接口设计为非注册式。
 
-在debug版本中, 打开 __mmem_debug_enbale 宏, 可以开启内存检测功能。
-    此时, 程序中的所有 malloc 相关函数都被替换为 mmem_debug 中的接口, 以便进行内存检测。
+在debug版本中, 打开 __mmem_debug_enbale 宏, 可以开启内存检测功能。  
+此时, 程序中的所有 malloc 相关函数都被替换为 mmem_debug 中的接口, 以便进行内存检测。
 
 
 在release版本中, 可以关闭 __mmem_debug_enbale 宏, 可以关闭内存检测功能。
@@ -23,10 +23,13 @@
 ## 1. 使用方法
 
 在源文件中引入头文件 `mmem_debug.h`
+``` c
+#include "mmem_debug.h"
+```
 
 添加编译参数 -D__mmem_debug_enbale=1
 
-正常使用 malloc, calloc, realloc, free 等函数即可。
+**正常使用 malloc, calloc, realloc, free 等函数即可**
 
 当不需要检测时，可以将编译参数 __mmem_debug_enbale 去掉或者设置为 0
 
