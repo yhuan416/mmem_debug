@@ -3,8 +3,10 @@
 ![GitHub](https://img.shields.io/github/license/yhuan416/mmem_debug)
 ![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/yhuan416/mmem_debug)
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/yhuan416/mmem_debug/every_day_build.yml)
+<!--
 ![GitHub forks](https://img.shields.io/github/forks/yhuan416/mmem_debug)
 ![GitHub Repo stars](https://img.shields.io/github/stars/yhuan416/mmem_debug)
+-->
 
 内存调试工具，用于监控程序运行过程中的内存泄漏，内存越界等问题。
 
