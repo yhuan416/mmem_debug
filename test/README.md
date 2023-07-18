@@ -13,7 +13,17 @@ mkdir -p build
 cd build
 cmake ..
 cmake --build .
-ctest
+ctest -V
+```
+
+构建时添加 -Duse_valgrind=1, 启用valgrind工具进行内存检测
+
+``` shell
+mkdir -p build
+cd build
+cmake .. -Duse_valgrind=1
+cmake --build .
+ctest -V
 ```
 
 ## 2. 添加测试用例

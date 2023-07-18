@@ -6,14 +6,16 @@
 ![GitHub forks](https://img.shields.io/github/forks/yhuan416/mmem_debug)
 ![GitHub Repo stars](https://img.shields.io/github/stars/yhuan416/mmem_debug)
 
-内存调试工具，用于检测内存泄漏，内存越界等问题。
+内存调试工具，用于监控程序运行过程中的内存泄漏，内存越界等问题。
 
 此库设计的初衷是为了能够方便的对程序的内存使用情况进行测试, 同时, 在正式发布版本中, 可以关闭相关功能, 减少内存占用以及性能损耗。
 
-因此相关接口设计为非注册式。
+相关接口设计为非注册式。
 
 在debug版本中, 打开 __mmem_debug_enbale 宏, 可以开启内存检测功能。
     此时, 程序中的所有 malloc 相关函数都被替换为 mmem_debug 中的接口, 以便进行内存检测。
+
+
 在release版本中, 可以关闭 __mmem_debug_enbale 宏, 可以关闭内存检测功能。
 
 ## 1. 使用方法
@@ -27,6 +29,7 @@
 当不需要检测时，可以将编译参数 __mmem_debug_enbale 去掉或者设置为 0
 
 ## 2. 接口说明
+*注：打开了 __mmem_debug_enbale 宏之后正常使用 malloc 等接口即可.*
 
 ``` c
 
@@ -89,7 +92,7 @@ extern void mmem_free_all(void);
  * @param counts[in]        counts of data
  * @param buf[out]          buffer to store data
  * @param buf_size[in]      buffer size
- * @return (long)           0: success, others: fail
+ * @return (long)           >=0: success, <0: fail
 */
 extern long mmem_dump(unsigned long cmd, unsigned long counts, void *buf, unsigned long buf_size);
 
@@ -117,8 +120,8 @@ if (ret > 0) {
 
 ## 4. TODO
 
-- [ ] 统一模块内用到的打印接口, 方便对接日志模块
 - [ ] 调整库整体接口, 支持封装层, 方便移植
     - 临界区(锁)
     - 打印接口
+- [ ] 统一模块内用到的打印接口, 方便对接日志模块
 - [ ] 支持内存越界检测接口
