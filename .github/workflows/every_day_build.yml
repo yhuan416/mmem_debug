@@ -3,7 +3,7 @@ name: every_day_build
 on:
   schedule:
     # 1:00 am at UTC+8
-    - cron:  '0 16 * * *'
+    - cron:  '0 17 * * *'
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
