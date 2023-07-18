@@ -6,9 +6,25 @@
 
 #include "mmem_dump.h"
 
-#include "mmem_debug_adapter.h"
+#include "adapter.h"
 #define _mmem_lock()       do { mmem__do_lock(MMEM_LOCK); } while(0)
 #define _mmem_unlock()     do { mmem__do_lock(MMEM_UNLOCK); } while(0)
+
+#ifndef _real_malloc
+#error "_real_malloc undefined."
+#endif // !_real_malloc
+
+#ifndef _real_free
+#error "_real_free undefined."
+#endif // !_real_free
+
+#ifndef _real_realloc
+#error "_real_realloc undefined."
+#endif // !_real_realloc
+
+#ifndef _real_calloc
+#error "_real_calloc undefined."
+#endif // !_real_calloc
 
 #define _align(_size, _align) (((_size) + ((_align) - 1)) & (~((_align) - 1)))
 

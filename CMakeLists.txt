@@ -11,13 +11,14 @@ if (MMEM_DEBUG_BUILD_TEST)
     enable_testing()
 endif ()
 
-set(MMEM_DEBUG_SRC
-    src/mmem_debug.c
-    src/mmem_debug_adapter.c
-)
+file(GLOB MMEM_DEBUG_SRC src/*.c)
 
 add_library(mmem_debug STATIC ${MMEM_DEBUG_SRC})
 target_include_directories(mmem_debug PUBLIC include)
+
+# mmem_debug_adapter
+add_subdirectory(adapter)
+target_link_libraries(mmem_debug PRIVATE mmem_debug_adapter)
 
 # test build
 if (MMEM_DEBUG_BUILD_TEST)
@@ -25,5 +26,6 @@ if (MMEM_DEBUG_BUILD_TEST)
     set(CUNIT_DISABLE_TESTS TRUE)
     add_subdirectory(third_party/cunit-3.2.7/CUnit)
 
+    # add test
     add_subdirectory(test)
 endif ()
