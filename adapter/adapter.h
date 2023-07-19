@@ -9,6 +9,14 @@
 #define MMEM_LOCK   (0x1)
 #define MMEM_UNLOCK (0x2)
 
-extern long mmem__do_lock(unsigned long release);
+extern long mmem_lock(unsigned long lock);
+
+#define MMEM_LEVEL_ERROR    (0x1)
+#define MMEM_LEVEL_DEBUG    (0x2)
+
+#define mmem_error(fmt, ...)   mmem_printf(MMEM_LEVEL_ERROR, fmt, ##__VA_ARGS__)
+#define mmem_debug(fmt, ...)   mmem_printf(MMEM_LEVEL_DEBUG, fmt, ##__VA_ARGS__)
+
+extern int mmem_printf(int level, const char *fmt, ...);
 
 #endif // __ADAPTER_H__
