@@ -17,7 +17,7 @@ add_library(mmem_debug STATIC ${MMEM_DEBUG_SRC})
 target_include_directories(mmem_debug PUBLIC include)
 
 # mlist
-add_subdirectory(lib/mlist)
+add_subdirectory(lib/mlist-0.0.1)
 target_link_libraries(mmem_debug PRIVATE mlist)
 
 # mmem_debug_adapter
