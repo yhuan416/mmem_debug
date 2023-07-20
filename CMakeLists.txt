@@ -16,6 +16,10 @@ file(GLOB MMEM_DEBUG_SRC src/*.c)
 add_library(mmem_debug STATIC ${MMEM_DEBUG_SRC})
 target_include_directories(mmem_debug PUBLIC include)
 
+# mlist
+add_subdirectory(lib/mlist)
+target_link_libraries(mmem_debug PRIVATE mlist)
+
 # mmem_debug_adapter
 add_subdirectory(adapter)
 target_link_libraries(mmem_debug PRIVATE mmem_debug_adapter)
