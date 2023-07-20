@@ -2,7 +2,7 @@
 
 [![GitHub](https://img.shields.io/github/license/yhuan416/mmem_debug)](https://github.com/yhuan416/mmem_debug)
 [![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/yhuan416/mmem_debug)](https://github.com/yhuan416/mmem_debug)
-[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/yhuan416/mmem_debug/every_day_build.yml)](https://github.com/yhuan416/mmem_debug)
+[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/yhuan416/mmem_debug/every_day_build.yml)](https://github.com/yhuan416/mmem_debug/actions/workflows/every_day_build.yml)
 <!--
 ![GitHub forks](https://img.shields.io/github/forks/yhuan416/mmem_debug)
 ![GitHub Repo stars](https://img.shields.io/github/stars/yhuan416/mmem_debug)
