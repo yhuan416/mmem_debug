@@ -13,12 +13,15 @@ endif ()
 
 file(GLOB MMEM_DEBUG_SRC src/*.c)
 
-add_library(mmem_debug STATIC ${MMEM_DEBUG_SRC})
-target_include_directories(mmem_debug PUBLIC include)
+# mlist
+add_subdirectory(third_party/mlist-0.0.1)
 
 # mmem_debug_adapter
 add_subdirectory(adapter)
-target_link_libraries(mmem_debug PRIVATE mmem_debug_adapter)
+
+add_library(mmem_debug STATIC ${MMEM_DEBUG_SRC})
+target_include_directories(mmem_debug PUBLIC include)
+target_link_libraries(mmem_debug PRIVATE mmem_debug_adapter mlist)
 
 # test build
 if (MMEM_DEBUG_BUILD_TEST)

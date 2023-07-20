@@ -32,7 +32,7 @@
 
 typedef struct mmem_block {
     unsigned long magic;            // 头部魔数
-    MLIST list;                     // 链表节点
+    mlist list;                     // 链表节点
     unsigned long size;             // 数据域大小
     unsigned long total_size;       // 总大小
     const char *file;               // 文件名
@@ -84,7 +84,7 @@ typedef struct mmem_block {
 
 typedef struct mmem_block_table {
     unsigned long count;
-    MLIST list;
+    mlist list;
     unsigned long total_size;
     unsigned long active_size;
     unsigned long max_total_size;
@@ -104,7 +104,7 @@ static mmem_block_table_t *_mmem_block_table_get(void)
         table->active_size = 0;
 
         // init list head
-        MLIST_INIT(&(table->list));
+        mlist_init(&(table->list));
     }
 
     return table;
@@ -112,7 +112,7 @@ static mmem_block_table_t *_mmem_block_table_get(void)
 
 #define _mmem_block_add(_table, _block) \
     do { \
-        MLIST_ADD_TAIL(&((_table)->list), &((_block)->list)); \
+        mlist_add_tail(&((_table)->list), &((_block)->list)); \
         (_table)->count++; \
         (_table)->total_size += (_block)->total_size; \
         (_table)->active_size += (_block)->size; \
@@ -126,7 +126,7 @@ static mmem_block_table_t *_mmem_block_table_get(void)
 
 #define _mmem_block_del(_table, _block) \
     do { \
-        MLIST_DEL(&((_block)->list)); \
+        mlist_del(&((_block)->list)); \
         (_table)->count--; \
         (_table)->total_size -= (_block)->total_size; \
         (_table)->active_size -= (_block)->size; \
@@ -161,7 +161,7 @@ void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* fil
 
     // add to block table
     table = _mmem_block_table_get();
-    MLIST_INIT(&(block->list));
+    mlist_init(&(block->list));
     _mmem_block_add(table, block);
 
     _mmem_unlock();
@@ -198,7 +198,7 @@ void *mmem_alloc(unsigned long size, const char* file, int line)
 
     // add to block table
     table = _mmem_block_table_get();
-    MLIST_INIT(&(block->list));
+    mlist_init(&(block->list));
     _mmem_block_add(table, block);
 
     _mmem_unlock();
@@ -280,7 +280,7 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
         _mmem_set_block_magic_active(block);
 
         // add old block to block table
-        MLIST_INIT(&(block->list));
+        mlist_init(&(block->list));
         _mmem_block_add(table, block);
 
         _mmem_unlock();
@@ -298,7 +298,7 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
     _mmem_set_block_magic_active(block);
 
     // add to block table
-    MLIST_INIT(&(block->list));
+    mlist_init(&(block->list));
     _mmem_block_add(table, block);
 
     _mmem_unlock();
@@ -355,7 +355,7 @@ void mmem_free_all(void)
 
     table = _mmem_block_table_get();
 
-    MLIST_FOR_EACH_ENTRY_SAFE(block, n, mmem_block_t, &(table->list), list) {
+    mlist_for_each_entry_safe(block, n, mmem_block_t, &(table->list), list) {
 
         // check block magic
         if (_mmem_check_block_magic_active(block)) {
@@ -438,7 +438,7 @@ static long _mmem_dump_cmd_mmem_block_info(mmem_block_table_t *table, unsigned l
         return 0;
     }
 
-    MLIST_FOR_EACH_ENTRY(block, mmem_block_t, &(table->list), list) {
+    mlist_for_each_entry(block, mmem_block_t, &(table->list), list) {
 
         info[index].size = _mmem_block_size(block);
         info[index].total_size = _mmem_block_total_size(block);
