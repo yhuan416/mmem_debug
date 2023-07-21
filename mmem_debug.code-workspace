@@ -26,7 +26,8 @@
             "mlist.h": "c",
             "mmem_debug_adapter.h": "c",
             "basic.h": "c",
-            "algorithm": "c"
+            "algorithm": "c",
+            "memory": "c"
         }
     }
 }
