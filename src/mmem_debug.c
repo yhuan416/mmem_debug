@@ -402,9 +402,7 @@ void mmem_free_all(void)
 
         // check block magic
         if (_mmem_check_block_magic_active(block)) {
-            _mmem_unlock();
             mmem_error("mmem_free_all: block(%p) magic error!\n", block);
-            _mmem_lock();
         }
 
         // set block magic
