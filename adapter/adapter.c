@@ -8,16 +8,22 @@
 
 long mmem_lock(unsigned long lock)
 {
+    int ret = -1;
     static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-    if (lock == MMEM_UNLOCK) {
-        pthread_mutex_unlock(&mutex);
-    } else if (lock == MMEM_LOCK) {
-        pthread_mutex_lock(&mutex);
-    } else {
-        return -1;
+    switch (lock)
+    {
+    case MMEM_UNLOCK:
+        ret = pthread_mutex_unlock(&mutex);
+        break;
+    case MMEM_LOCK:
+        ret = pthread_mutex_lock(&mutex);
+        break;
+    default:
+        ret = -1;
+        break;
     }
-    return 0;
+    return ret;
 }
 
 #define MMEM_PRINT_BUF_SIZE (1024)
@@ -35,10 +41,10 @@ int mmem_printf(const int level, const char *fmt, ...)
     switch (level)
     {
     case MMEM_LEVEL_ERROR:
-        printf("\n[ERROR] %s.\n", print_buf);
+        printf("\n\x1B[31m[ERROR]\x1B[0m %s\n", print_buf);
         break;
     case MMEM_LEVEL_DEBUG:
-        printf("\n[DEBUG] %s.\n", print_buf);
+        printf("\n\x1B[32m[DEBUG]\x1B[0m %s\n", print_buf);
         break;
     default:
         break;
