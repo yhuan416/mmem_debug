@@ -13,7 +13,7 @@ mkdir -p build
 cd build
 cmake ..
 cmake --build .
-ctest -V
+ctest --output-on-failure
 ```
 
 构建时添加 -Duse_valgrind=1, 启用valgrind工具进行内存检测
@@ -23,7 +23,7 @@ mkdir -p build
 cd build
 cmake .. -Duse_valgrind=1
 cmake --build .
-ctest -V
+ctest --output-on-failure
 ```
 
 ## 2. 添加测试用例
