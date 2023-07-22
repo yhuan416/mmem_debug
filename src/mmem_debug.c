@@ -148,7 +148,6 @@ static mmem_block_table_t *_mmem_block_table_get(void)
         (_table)->active_size -= (_block)->size; \
     } while(0)
 
-
 void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* file, int line)
 {
     mmem_block_t *block = NULL;
@@ -156,22 +155,23 @@ void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* fil
     unsigned long size = 0;
     unsigned long total_size = 0;
 
+    _mmem_lock();
+
     mmem_debug("mmem_calloc(%lu,%lu): enter.", counts, item_size);
 
     if (counts == 0 || item_size == 0) {
         mmem_error("mmem_calloc: invalid counts(%lu) or item_size(%lu)!", counts, item_size);
+        _mmem_unlock();
         return NULL;
     }
 
     size = counts * item_size;
     total_size = _mmem_total_size(size);
 
-    _mmem_lock();
-
     block = (mmem_block_t *)_real_calloc(1, total_size);
     if (block == NULL) {
-        _mmem_unlock();
         mmem_error("mmem_calloc: calloc failed!");
+        _mmem_unlock();
         return NULL;
     }
 
@@ -184,35 +184,35 @@ void *mmem_calloc(unsigned long counts, unsigned long item_size, const char* fil
     mlist_init(&(block->list));
     _mmem_block_add(table, block);
 
-    _mmem_unlock();
-
     mmem_debug("mmem_calloc: exit.");
+
+    _mmem_unlock();
 
     return _mmem_block_data(block);
 }
-
 
 void *mmem_alloc(unsigned long size, const char* file, int line)
 {
     mmem_block_t *block = NULL;
     mmem_block_table_t *table = NULL;
-    unsigned long total_size;
+    unsigned long total_size = 0;
+
+    _mmem_lock();
 
     mmem_debug("mmem_alloc(%lu): enter.", size);
 
     if (size == 0) {
         mmem_error("mmem_alloc: invalid size(%lu)!", size);
+        _mmem_unlock();
         return NULL;
     }
 
     total_size = _mmem_total_size(size);
 
-    _mmem_lock();
-
     block = (mmem_block_t *)_real_malloc(total_size);
     if (block == NULL) {
-        _mmem_unlock();
         mmem_error("mmem_alloc: malloc failed!");
+        _mmem_unlock();
         return NULL;
     }
 
@@ -227,9 +227,9 @@ void *mmem_alloc(unsigned long size, const char* file, int line)
     mlist_init(&(block->list));
     _mmem_block_add(table, block);
 
-    _mmem_unlock();
-
     mmem_debug("mmem_alloc: exit.");
+
+    _mmem_unlock();
 
     return _mmem_block_data(block);
 }
@@ -240,19 +240,21 @@ void mmem_free(void* addr, const char* file, int line)
     mmem_block_t *block = NULL;
     mmem_block_table_t *table = NULL;
 
+    _mmem_lock();
+
     mmem_debug("mmem_free(%p): enter.", addr);
 
     if (addr == NULL) {
         mmem_error("mmem_free: invalid addr(%p)!", addr);
+        _mmem_unlock();
         return;
     }
 
-    _mmem_lock();
 
     block = _mmem_get_block(addr);
     if (_mmem_check_block_magic_active(block)) {
-        _mmem_unlock();
         mmem_error("mmem_free: block(%p) magic error!", block);
+        _mmem_unlock();
         return;
     }
 
@@ -276,27 +278,29 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
     mmem_block_t *block = NULL;
     mmem_block_t *new_block = NULL;
     mmem_block_table_t *table = NULL;
-    unsigned long total_size;
+    unsigned long total_size = 0;
+
+    _mmem_lock();
 
     mmem_debug("mmem_realloc(%p,%lu): enter.", addr, size);
 
     // if addr is NULL, realloc is equal to malloc
     if (addr == NULL) {
+        _mmem_unlock();
         return mmem_alloc(size, file, line);
     }
 
     // if size is 0, realloc is equal to free
     if (size == 0) {
+        _mmem_unlock();
         mmem_free(addr, file, line);
         return NULL;
     }
 
-    _mmem_lock();
-
     block = _mmem_get_block(addr);
     if (_mmem_check_block_magic_active(block)) {
-        _mmem_unlock();
         mmem_error("mmem_realloc: block(%p) magic error!", block);
+        _mmem_unlock();
         return NULL;
     }
 
@@ -318,9 +322,10 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
         mlist_init(&(block->list));
         _mmem_block_add(table, block);
 
+        mmem_error("mmem_realloc: realloc failed!");
+
         _mmem_unlock();
 
-        mmem_error("mmem_realloc: realloc failed!");
         return NULL;
     }
 
@@ -336,9 +341,9 @@ void *mmem_realloc(void* addr, unsigned long size, const char* file, int line)
     mlist_init(&(block->list));
     _mmem_block_add(table, block);
 
-    _mmem_unlock();
-
     mmem_debug("mmem_realloc: exit.");
+
+    _mmem_unlock();
 
     return _mmem_block_data(block);
 }
@@ -353,9 +358,9 @@ long mmem_dump(unsigned long cmd, unsigned long counts, void *buf, unsigned long
     long ret = 0;
     mmem_block_table_t *table = NULL;
 
-    mmem_debug("mmem_dump: enter.");
-
     _mmem_lock();
+
+    mmem_debug("mmem_dump: enter.");
 
     table = _mmem_block_table_get();
 
@@ -379,9 +384,9 @@ long mmem_dump(unsigned long cmd, unsigned long counts, void *buf, unsigned long
         break;
     }
 
-    _mmem_unlock();
-
     mmem_debug("mmem_dump: exit.");
+
+    _mmem_unlock();
 
     return ret;
 }
@@ -392,9 +397,9 @@ void mmem_free_all(void)
     mmem_block_t *block = NULL, *n = NULL;
     mmem_block_table_t *table = NULL;
 
-    mmem_debug("mmem_free_all: enter.");
-
     _mmem_lock();
+
+    mmem_debug("mmem_free_all: enter.");
 
     table = _mmem_block_table_get();
 
@@ -415,9 +420,9 @@ void mmem_free_all(void)
         _real_free(block);
     }
 
-    _mmem_unlock();
-
     mmem_debug("mmem_free_all: exit.");
+
+    _mmem_unlock();
 }
 
 // mmem_dump cmd
