@@ -279,7 +279,6 @@ void mmem_free(void *addr, const char *file, int line)
                    _mmem_block_file(block),
                    _mmem_block_line(block),
                    _mmem_block_size(block));
-
         _mmem_unlock();
         return;
     }
@@ -331,7 +330,6 @@ void *mmem_realloc(void *addr, unsigned long size, const char *file, int line)
                    _mmem_block_file(block),
                    _mmem_block_line(block),
                    _mmem_block_size(block));
-
         _mmem_unlock();
         return NULL;
     }
