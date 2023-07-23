@@ -275,7 +275,11 @@ void mmem_free(void *addr, const char *file, int line)
     block = _mmem_get_block(addr);
     if (_mmem_check_block_magic_active(block))
     {
-        mmem_error("mmem_free: block(%p) magic error!", block);
+        mmem_error("mmem_free: block(%p) magic error!, %s[%d] size:%d", block,
+                   _mmem_block_file(block),
+                   _mmem_block_line(block),
+                   _mmem_block_size(block));
+
         _mmem_unlock();
         return;
     }
@@ -323,7 +327,11 @@ void *mmem_realloc(void *addr, unsigned long size, const char *file, int line)
     block = _mmem_get_block(addr);
     if (_mmem_check_block_magic_active(block))
     {
-        mmem_error("mmem_realloc: block(%p) magic error!", block);
+        mmem_error("mmem_realloc: block(%p) magic error! %s[%d] size:%d", block,
+                   _mmem_block_file(block),
+                   _mmem_block_line(block),
+                   _mmem_block_size(block));
+
         _mmem_unlock();
         return NULL;
     }
@@ -404,7 +412,7 @@ long mmem_dump(unsigned long cmd, unsigned long counts, void *buf, unsigned long
         break;
 
     default:
-        // printf("mmem_dump: invalid cmd %ld\n", cmd);
+        mmem_error("mmem_dump: invalid cmd %ld", cmd);
         ret = MMEM_DUMP_RET_INVALID_CMD;
         break;
     }
@@ -434,7 +442,10 @@ void mmem_free_all(void)
         // check block magic
         if (_mmem_check_block_magic_active(block))
         {
-            mmem_error("mmem_free_all: block(%p) magic error!\n", block);
+            mmem_error("mmem_free_all: block(%p) magic error! %s[%d] size:%d", block,
+                       _mmem_block_file(block),
+                       _mmem_block_line(block),
+                       _mmem_block_size(block));
         }
 
         // set block magic
